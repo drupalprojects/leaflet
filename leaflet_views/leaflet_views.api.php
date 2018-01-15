@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @file
  * Hook documentation for leaflet_views module.

@@ -29,6 +29,8 @@ class LeafletMarker extends RowPluginBase implements ContainerFactoryPluginInter
 
   /**
    * Overrides Drupal\views\Plugin\Plugin::$usesOptions.
+   *
+   * @var bool
    */
   protected $usesOptions = TRUE;
 
@@ -68,18 +70,18 @@ class LeafletMarker extends RowPluginBase implements ContainerFactoryPluginInter
   protected $entityDisplay;
 
   /**
+   * The Renderer service property.
+   *
+   * @var \Drupal\Core\Render\RendererInterface
+   */
+  protected $renderer;
+
+  /**
    * The View Data service property.
    *
    * @var \Drupal\views\ViewsData
    */
   protected $viewsData;
-
-  /**
-   * The Renderer service property.
-   *
-   * @var \Drupal\Core\Entity\EntityDisplayRepositoryInterface
-   */
-  protected $renderer;
 
   /**
    * Constructs a LeafletMap style instance.
@@ -90,14 +92,16 @@ class LeafletMarker extends RowPluginBase implements ContainerFactoryPluginInter
    *   The plugin_id for the formatter.
    * @param mixed $plugin_definition
    *   The plugin implementation definition.
-   * @param EntityTypeManagerInterface $entity_manager
+   * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_manager
    *   The entity manager.
-   * @param EntityFieldManagerInterface $entity_field_manager
+   * @param \Drupal\Core\Entity\EntityFieldManagerInterface $entity_field_manager
    *   The entity field manager.
-   * @param EntityDisplayRepositoryInterface $entity_display
+   * @param \Drupal\Core\Entity\EntityDisplayRepositoryInterface $entity_display
    *   The entity display manager.
-   * @param RendererInterface $renderer
+   * @param \Drupal\Core\Render\RendererInterface $renderer
    *   The renderer.
+   * @param \Drupal\Views\ViewsData $view_data
+   *   The view data.
    */
   public function __construct(
     array $configuration,
@@ -152,9 +156,10 @@ class LeafletMarker extends RowPluginBase implements ContainerFactoryPluginInter
     parent::buildOptionsForm($form, $form_state);
 
     // Get a list of fields and a sublist of geo data fields in this view.
-    // @todo use $fields = $this->displayHandler->getFieldLabels();
+    // @TODO use $fields = $this->displayHandler->getFieldLabels();
     $fields = array();
     $fields_geo_data = array();
+    /* @var \Drupal\views\Plugin\views\ViewsHandlerInterface $handler */
     foreach ($this->displayHandler->getHandlers('field') as $field_id => $handler) {
       $label = $handler->adminLabel() ?: $field_id;
       $fields[$field_id] = $label;
@@ -250,7 +255,7 @@ class LeafletMarker extends RowPluginBase implements ContainerFactoryPluginInter
       return FALSE;
     }
 
-    // @todo This assumes that the user has selected WKT as the geofield output
+    // @TODO This assumes that the user has selected WKT as the geofield output
     // formatter in the views field settings, and fails otherwise. Very brittle.
     $result = leaflet_process_geofield($geofield_value);
 
@@ -263,13 +268,13 @@ class LeafletMarker extends RowPluginBase implements ContainerFactoryPluginInter
    *
    * @param array $points
    *   A list of geofield points from {@link leaflet_process_geofield()}.
-   * @param ResultRow $row
+   * @param \Drupal\views\ResultRow $row
    *   The views result row.
    *
    * @return array
    *   List of leaflet markers.
    */
-  protected function renderLeafletMarkers($points, ResultRow $row) {
+  protected function renderLeafletMarkers(array $points, ResultRow $row) {
     // Render the entity with the selected view mode.
     $popup_body = '';
     if ($this->options['description_field'] === '#rendered_entity' && is_object($row->_entity)) {
@@ -307,7 +312,7 @@ class LeafletMarker extends RowPluginBase implements ContainerFactoryPluginInter
    *
    * @param array $point
    *   The Marker Point.
-   * @param ResultRow $row
+   * @param \Drupal\views\ResultRow $row
    *   The Result rows.
    */
   protected function alterLeafletMarker(array &$point, ResultRow $row) {
@@ -338,4 +343,5 @@ class LeafletMarker extends RowPluginBase implements ContainerFactoryPluginInter
 
     return $options;
   }
+
 }

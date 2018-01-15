@@ -3,12 +3,9 @@
 namespace Drupal\leaflet\Plugin\Field\FieldFormatter;
 
 use Drupal\Component\Utility\UrlHelper;
-use Drupal\Core\Field\Annotation\FieldFormatter;
-use Drupal\Core\Annotation\Translation;
 use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\Core\Field\FormatterBase;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\Core\StringTranslation\StringTranslationTrait;
 
 /**
  * Plugin implementation of the 'leaflet_default' formatter.
@@ -35,7 +32,7 @@ class LeafletDefaultFormatter extends FormatterBase {
       'maxPossibleZoom' => 18,
       'minZoom' => 0,
       'maxZoom' => 18,
-      'popup' => False,
+      'popup' => FALSE,
       'icon' => array(
         'icon_url' => '',
         'shadow_url' => '',
@@ -55,7 +52,7 @@ class LeafletDefaultFormatter extends FormatterBase {
 
     $leaflet_map_options = [];
     foreach (leaflet_map_get_info() as $key => $map) {
-      $leaflet_map_options[$key] = $this->t($map['label']);
+      $leaflet_map_options[$key] = $map['label'];
     }
     $elements['leaflet_map'] = array(
       '#title' => $this->t('Leaflet Map'),
@@ -244,7 +241,7 @@ class LeafletDefaultFormatter extends FormatterBase {
    * @param \Drupal\Core\Form\FormStateInterface $form_state
    *   The state of the form.
    */
-  public function validateUrl($element, FormStateInterface $form_state) {
+  public function validateUrl(array $element, FormStateInterface $form_state) {
     if (!empty($element['#value']) && !UrlHelper::isValid($element['#value'])) {
       $form_state->setError($element, $this->t("Icon Url is not valid."));
     }
