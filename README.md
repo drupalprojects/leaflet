@@ -14,10 +14,12 @@ o by using the API directly.
 Installation (manual)
 ---------------------
 
-1. Normal Drupal module installation
+1. Normal Drupal module download/installation and enabling.
 
-2. Download the Leaflet library from http://leafletjs.com/. Leaflet 1.0.2 or
-   higher is recommended
+2. Download the Leaflet library from
+https://github.com/Leaflet/Leaflet/archive/v1.0.3.zip,
+unpack, rename the folder as "leafet" and put it in the "libraries" folder of
+the Drupal application root;
 
 3. Enable leaflet_views for using Views and Leaflet (see below), or use the
    display formatters for fields display.
@@ -26,18 +28,25 @@ Installation (manual)
 Installation (composer)
 -----------------------
 
-1. Run $ composer require drupal/leaflet:~1.0
+1. Run
+
+  $ composer require drupal/leaflet
+
+Note: for the actual dev run the following:
+
+  $ composer require drupal/leaflet:1.x-dev)
 
 2. Add the proper repository to your composer.json file to be able to require
-   the JS library:
+   the Leaflet JS library. Under the "repositories" index add the following:
+
     {
       "type": "package",
       "package": {
         "name": "leaflet/leaflet",
-        "version": "1.0.2",
+        "version": "1.0.3",
         "type": "drupal-library",
         "dist": {
-          "url": "https://github.com/Leaflet/Leaflet/archive/v1.0.2.zip",
+          "url": "https://github.com/Leaflet/Leaflet/archive/v1.0.3.zip",
           "type": "zip"
         }
       }
@@ -128,3 +137,4 @@ Authors/Credits
 
 * [levelos](http://drupal.org/user/54135)
 * [pvhee](http://drupal.org/user/108811)
+* [itamair](https://www.drupal.org/u/itamair)
