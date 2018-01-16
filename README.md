@@ -39,7 +39,7 @@ Note: for the actual dev run the following:
 2. Add the proper repository to your composer.json file to be able to require
    the Leaflet JS library. Under the "repositories" index add the following:
 
-    {
+    "leaflet": {
       "type": "package",
       "package": {
         "name": "leaflet/leaflet",
