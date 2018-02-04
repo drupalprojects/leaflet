@@ -23,7 +23,7 @@ use Drupal\Core\Render\RendererInterface;
  *
  * @ViewsStyle(
  *   id = "leafet_map",
- *   title = @Translation("Leaflet map (old)"),
+ *   title = @Translation("Leaflet Map"),
  *   help = @Translation("Displays a View as a Leaflet map."),
  *   display_types = {"normal"},
  *   theme = "leaflet-map"
