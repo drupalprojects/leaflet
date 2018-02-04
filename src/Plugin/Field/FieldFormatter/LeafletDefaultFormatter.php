@@ -195,7 +195,7 @@ class LeafletDefaultFormatter extends FormatterBase {
    */
   public function settingsSummary() {
     $summary = array();
-    $summary[] = $this->t('Leaflet map: @map', array('@map' => $this->getSetting('leaflet_map')));
+    $summary[] = $this->t('Leaflet Map: @map', array('@map' => $this->getSetting('leaflet_map')));
     $summary[] = $this->t('Map height: @height px', array('@height' => $this->getSetting('height')));
     return $summary;
   }
