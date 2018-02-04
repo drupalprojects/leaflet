@@ -40,5 +40,14 @@
         "source": "http://cgit.drupalcode.org/leaflet"
     },
     "license": "GPL-2.0+",
-    "minimum-stability": "dev"
+    "minimum-stability": "dev",
+    "repositories": {
+        "drupal": {
+            "type": "composer",
+            "url": "https://packages.drupal.org/8"
+        }
+    },
+    "require": {
+        "drupal/geofield": "^1.0"
+    }
 }
