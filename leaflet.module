@@ -136,7 +136,7 @@ function leaflet_leaflet_map_info() {
  * The map points can then be fed into leaflet_render_map().
  *
  * @param mixed $items
- *   A single vlaue or array of geo values, each as a string in any of the
+ *   A single value or array of geo values, each as a string in any of the
  *   supported formats or as an array of $item elements, each with a
  *   $item['wkt'] field.
  *
