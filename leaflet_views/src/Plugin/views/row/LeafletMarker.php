@@ -163,7 +163,7 @@ class LeafletMarker extends RowPluginBase implements ContainerFactoryPluginInter
     foreach ($this->displayHandler->getHandlers('field') as $field_id => $handler) {
       $label = $handler->adminLabel() ?: $field_id;
       $fields[$field_id] = $label;
-      if (is_a($handler, 'Drupal\views\Plugin\views\field\Field')) {
+      if (is_a($handler, 'Drupal\views\Plugin\views\field\EntityField')) {
         $field_storage_definitions = $this->entityFieldManager
           ->getFieldStorageDefinitions($handler->getEntityType());
         $field_storage_definition = $field_storage_definitions[$handler->definition['field_name']];
