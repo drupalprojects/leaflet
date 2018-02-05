@@ -12,7 +12,7 @@ use Drupal\Core\Form\FormStateInterface;
  *
  * @FieldFormatter(
  *   id = "leaflet_formatter_default",
- *   label = @Translation("Leaflet map"),
+ *   label = @Translation("Leaflet Map"),
  *   field_types = {
  *     "geofield"
  *   }
