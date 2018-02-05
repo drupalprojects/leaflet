@@ -2,13 +2,11 @@
 
 namespace Drupal\leaflet_views\Plugin\views\display;
 
-
 use Drupal\views\Plugin\views\display\Attachment;
 use Drupal\views\ViewExecutable;
 
 /**
- * The plugin which handles attachment of additional leaflet features to
- * leaflet map views.
+ * Plugin attachment of additional leaflet features to leaflet map views.
  *
  * @ingroup views_display_plugins
  *
@@ -76,8 +74,8 @@ class LeafletAttachment extends Attachment {
     }
     if ($render = $view->render()) {
       $this->view->attachment_before[] = $render + array(
-          '#leaflet-attachment' => TRUE,
-        );
+        '#leaflet-attachment' => TRUE,
+      );
     }
   }
 
@@ -121,4 +119,5 @@ class LeafletAttachment extends Attachment {
 
     return $options;
   }
+
 }

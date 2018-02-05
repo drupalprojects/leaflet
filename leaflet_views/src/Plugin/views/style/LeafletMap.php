@@ -134,7 +134,7 @@ class LeafletMap extends StylePluginBase implements ContainerFactoryPluginInterf
   }
 
   /**
-   * If this view is displaying an entity, save the entity type and info.
+   * {@inheritdoc}
    */
   public function init(ViewExecutable $view, DisplayPluginBase $display, array &$options = NULL) {
     parent::init($view, $display, $options);
@@ -168,10 +168,12 @@ class LeafletMap extends StylePluginBase implements ContainerFactoryPluginInterf
     // Get a list of fields and a sublist of geo data fields in this view.
     $fields = array();
     $fields_geo_data = array();
+    /* @var \Drupal\views\Plugin\views\ViewsHandlerInterface $handler */
     foreach ($this->displayHandler->getHandlers('field') as $field_id => $handler) {
       $label = $handler->adminLabel() ?: $field_id;
       $fields[$field_id] = $label;
       if (is_a($handler, '\Drupal\views\Plugin\views\field\EntityField')) {
+        /* @var \Drupal\views\Plugin\views\field\EntityField $handler */
         $field_storage_definitions = $this->entityFieldManager
           ->getFieldStorageDefinitions($handler->getEntityType());
         $field_storage_definition = $field_storage_definitions[$handler->definition['field_name']];
@@ -264,7 +266,7 @@ class LeafletMap extends StylePluginBase implements ContainerFactoryPluginInterf
     // Choose a map preset.
     $map_options = array();
     foreach (leaflet_map_get_info() as $key => $map) {
-      $map_options[$key] = $this->t($map['label']);
+      $map_options[$key] = $map['label'];
     }
     $form['map'] = array(
       '#title' => $this->t('Map'),
@@ -381,7 +383,7 @@ class LeafletMap extends StylePluginBase implements ContainerFactoryPluginInterf
   }
 
   /**
-   * Validates the options form.
+   * {@inheritdoc}
    */
   public function validateOptionsForm(&$form, FormStateInterface $form_state) {
     parent::validateOptionsForm($form, $form_state);
@@ -413,6 +415,7 @@ class LeafletMap extends StylePluginBase implements ContainerFactoryPluginInterf
     $geofield_name = $this->options['data_source'];
     if ($this->options['data_source']) {
       $this->renderFields($this->view->result);
+      /* @var \Drupal\views\ResultRow $result */
       foreach ($this->view->result as $id => $result) {
 
         $geofield_value = $this->getFieldValue($id, $geofield_name);
@@ -426,10 +429,10 @@ class LeafletMap extends StylePluginBase implements ContainerFactoryPluginInterf
           $points = leaflet_process_geofield($geofield_value);
 
           // Render the entity with the selected view mode.
-          if ($this->options['description_field'] === '#rendered_entity' && is_object($result)) {
-            $entity = $this->entityManager->getStorage($this->entityType)->load($result->nid);
+          if ($this->options['description_field'] === '#rendered_entity' && isset($result->_entity)) {
+            $entity = $result->_entity;
             $build = $this->entityManager->getViewBuilder($entity->getEntityTypeId())->view($entity, $this->options['view_mode'], $entity->language());
-            $description = $this->renderer->render($build);
+            $description = $this->renderer->renderRoot($build);
           }
           // Normal rendering via fields.
           elseif ($this->options['description_field']) {

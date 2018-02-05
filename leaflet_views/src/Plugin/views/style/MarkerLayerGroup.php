@@ -2,8 +2,6 @@
 
 namespace Drupal\leaflet_views\Plugin\views\style;
 
-use Drupal\Core\Form\FormStateInterface;
-
 /**
  * Style plugin to render leaflet features in layer groups.
  *
@@ -28,13 +26,6 @@ class MarkerLayerGroup extends MarkerDefault {
   /**
    * {@inheritdoc}
    */
-  public function buildOptionsForm(&$form, FormStateInterface $form_state) {
-    parent::buildOptionsForm($form, $form_state);
-  }
-
-  /**
-   * {@inheritdoc}
-   */
   public function renderGrouping($records, $groupings = array(), $group_rendered = NULL) {
     $sets = parent::renderGrouping($records, $groupings, $group_rendered);
     if (!$groupings) {
@@ -54,14 +45,6 @@ class MarkerLayerGroup extends MarkerDefault {
       'label' => $title,
       'features' => $features,
     );
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  protected function defineOptions() {
-    return parent::defineOptions();
-    // Add group options.
   }
 
 }
