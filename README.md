@@ -77,6 +77,7 @@ Roadmap
 
 * Better UI for managing maps
 * Move static & procedural API functions into Leaflet Services
+* Purge of not working / useless leaflet_views views classes
 * Better documentation
 
 Authors/Credits
