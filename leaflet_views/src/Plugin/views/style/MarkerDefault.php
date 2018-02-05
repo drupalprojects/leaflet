@@ -162,7 +162,8 @@ class MarkerDefault extends StylePluginBase implements ContainerFactoryPluginInt
    *   The list of leaflet features / points.
    *
    * @return array
-   *   Definition of leaflet markers, compatible with leaflet_render_map().
+   *   Definition of leaflet markers, compatible with
+   *   \Drupal::service('leaflet.service')->leafletRenderMap().
    */
   protected function renderLeafletGroup($title, $level, array $features = []) {
     return [

@@ -2,10 +2,14 @@
 
 namespace Drupal\leaflet\Plugin\Field\FieldFormatter;
 
+use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
+use Symfony\Component\DependencyInjection\ContainerInterface;
+use Drupal\Core\Field\FieldDefinitionInterface;
 use Drupal\Component\Utility\UrlHelper;
 use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\Core\Field\FormatterBase;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Leaflet\LeafletService;
 
 /**
  * Plugin implementation of the 'leaflet_default' formatter.
@@ -18,7 +22,64 @@ use Drupal\Core\Form\FormStateInterface;
  *   }
  * )
  */
-class LeafletDefaultFormatter extends FormatterBase {
+class LeafletDefaultFormatter extends FormatterBase implements ContainerFactoryPluginInterface {
+
+  /**
+   * Leaflet service.
+   *
+   * @var \Drupal\Leaflet\LeafletService
+   */
+  protected $leafletService;
+
+  /**
+   * LeafletDefaultFormatter constructor.
+   *
+   * @param string $plugin_id
+   *   The plugin_id for the formatter.
+   * @param mixed $plugin_definition
+   *   The plugin implementation definition.
+   * @param \Drupal\Core\Field\FieldDefinitionInterface $field_definition
+   *   The definition of the field to which the formatter is associated.
+   * @param array $settings
+   *   The formatter settings.
+   * @param string $label
+   *   The formatter label display setting.
+   * @param string $view_mode
+   *   The view mode.
+   * @param array $third_party_settings
+   *   Any third party settings settings.
+   * @param \Drupal\Leaflet\LeafletService $leaflet_service
+   *   The Leaflet service.
+   */
+  public function __construct(
+    $plugin_id,
+    $plugin_definition,
+    FieldDefinitionInterface $field_definition,
+    array $settings,
+    $label,
+    $view_mode,
+    array $third_party_settings,
+    LeafletService $leaflet_service
+  ) {
+    parent::__construct($plugin_id, $plugin_definition, $field_definition, $settings, $label, $view_mode, $third_party_settings);
+    $this->leafletService = $leaflet_service;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
+    return new static(
+      $plugin_id,
+      $plugin_definition,
+      $configuration['field_definition'],
+      $configuration['settings'],
+      $configuration['label'],
+      $configuration['view_mode'],
+      $configuration['third_party_settings'],
+      $container->get('leaflet.service')
+    );
+  }
 
   /**
    * {@inheritdoc}
@@ -217,7 +278,7 @@ class LeafletDefaultFormatter extends FormatterBase {
     $elements = [];
     foreach ($items as $delta => $item) {
 
-      $features = leaflet_process_geofield($item->value);
+      $features = $this->leafletService->leafletProcessGeofield($item->value);
 
       // If only a single feature, set the popup content to the entity title.
       if ($settings['popup'] && count($items) == 1) {
@@ -228,7 +289,7 @@ class LeafletDefaultFormatter extends FormatterBase {
           $features[$key]['icon'] = $settings['icon'];
         }
       }
-      $elements[$delta] = leaflet_render_map($map, $features, $settings['height'] . 'px');
+      $elements[$delta] = $this->leafletService->leafletRenderMap($map, $features, $settings['height'] . 'px');
     }
     return $elements;
   }

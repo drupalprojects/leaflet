@@ -56,8 +56,10 @@ View mode.
 
 ###API Usage
 
-Rendering a map is as simple as calling a single method, leaflet_render_map(),
-which takes 3 parameters.
+Rendering a map is as simple as instantiating the LeafletService and its 
+leafletRenderMap method 
+(\Drupal::service('leaflet.service')->leafletRenderMap($map, $features, $height)),
+which takes 3 parameters:
 
 * $map:
 An associative array defining a map. See hook_leaflet_map_info(). The module

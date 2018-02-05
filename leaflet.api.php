@@ -9,7 +9,8 @@
  * Define map definitions to be used when rendering a map.
  *
  * The leaflet_map_get_info() will grab every defined map, and the returned
- * associative array is then passed to leaflet_render_map(), along with a
+ * associative array is then passed to
+ * \Drupal::service('leaflet.service')->leafletRenderMap(), along with a
  * collection of features.
  *
  * The settings array maps to the settings available to the leaflet map object,

@@ -13,6 +13,7 @@ use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Entity\EntityFieldManagerInterface;
 use Drupal\Core\Entity\EntityDisplayRepositoryInterface;
 use Drupal\Core\Render\RendererInterface;
+use Drupal\Leaflet\LeafletService;
 
 /**
  * Style plugin to render a View output as a Leaflet map.
@@ -83,6 +84,13 @@ class LeafletMap extends StylePluginBase implements ContainerFactoryPluginInterf
   protected $renderer;
 
   /**
+   * Leaflet service.
+   *
+   * @var \Drupal\Leaflet\LeafletService
+   */
+  protected $leafletService;
+
+  /**
    * Constructs a LeafletMap style instance.
    *
    * @param array $configuration
@@ -99,6 +107,8 @@ class LeafletMap extends StylePluginBase implements ContainerFactoryPluginInterf
    *   The entity display manager.
    * @param \Drupal\Core\Render\RendererInterface $renderer
    *   The renderer.
+   * @param \Drupal\Leaflet\LeafletService $leaflet_service
+   *   The Leaflet service.
    */
   public function __construct(
     array $configuration,
@@ -107,7 +117,8 @@ class LeafletMap extends StylePluginBase implements ContainerFactoryPluginInterf
     EntityTypeManagerInterface $entity_manager,
     EntityFieldManagerInterface $entity_field_manager,
     EntityDisplayRepositoryInterface $entity_display,
-    RendererInterface $renderer
+    RendererInterface $renderer,
+    LeafletService $leaflet_service
   ) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
 
@@ -115,7 +126,7 @@ class LeafletMap extends StylePluginBase implements ContainerFactoryPluginInterf
     $this->entityFieldManager = $entity_field_manager;
     $this->entityDisplay = $entity_display;
     $this->renderer = $renderer;
-
+    $this->leafletService = $leaflet_service;
   }
 
   /**
@@ -129,7 +140,8 @@ class LeafletMap extends StylePluginBase implements ContainerFactoryPluginInterf
       $container->get('entity_type.manager'),
       $container->get('entity_field.manager'),
       $container->get('entity_display.repository'),
-      $container->get('renderer')
+      $container->get('renderer'),
+      $container->get('leaflet.service')
     );
   }
 
@@ -426,7 +438,7 @@ class LeafletMap extends StylePluginBase implements ContainerFactoryPluginInterf
           $geofield_value = $this->rendered_fields[$id][$geofield_name];
         }
         if (!empty($geofield_value)) {
-          $points = leaflet_process_geofield($geofield_value);
+          $points = $this->leafletService->leafletProcessGeofield($geofield_value);
 
           // Render the entity with the selected view mode.
           if ($this->options['description_field'] === '#rendered_entity' && isset($result->_entity)) {
@@ -466,7 +478,7 @@ class LeafletMap extends StylePluginBase implements ContainerFactoryPluginInterf
 
     // Always render the map, even if we do not have any data.
     $map = leaflet_map_get_info($this->options['map']);
-    return leaflet_render_map($map, $data, $this->options['height'] . 'px');
+    return $this->leafletService->leafletRenderMap($map, $data, $this->options['height'] . 'px');
   }
 
   /**

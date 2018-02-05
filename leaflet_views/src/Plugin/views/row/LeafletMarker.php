@@ -14,6 +14,7 @@ use Drupal\Core\Entity\EntityFieldManagerInterface;
 use Drupal\Core\Entity\EntityDisplayRepositoryInterface;
 use Drupal\Core\Render\RendererInterface;
 use Drupal\views\ViewsData;
+use Drupal\Leaflet\LeafletService;
 
 /**
  * Plugin which formats a row as a leaflet marker.
@@ -84,6 +85,13 @@ class LeafletMarker extends RowPluginBase implements ContainerFactoryPluginInter
   protected $viewsData;
 
   /**
+   * Leaflet service.
+   *
+   * @var \Drupal\Leaflet\LeafletService
+   */
+  protected $leafletService;
+
+  /**
    * Constructs a LeafletMap style instance.
    *
    * @param array $configuration
@@ -102,6 +110,8 @@ class LeafletMarker extends RowPluginBase implements ContainerFactoryPluginInter
    *   The renderer.
    * @param \Drupal\Views\ViewsData $view_data
    *   The view data.
+   * @param \Drupal\Leaflet\LeafletService $leaflet_service
+   *   The Leaflet service.
    */
   public function __construct(
     array $configuration,
@@ -111,7 +121,8 @@ class LeafletMarker extends RowPluginBase implements ContainerFactoryPluginInter
     EntityFieldManagerInterface $entity_field_manager,
     EntityDisplayRepositoryInterface $entity_display,
     RendererInterface $renderer,
-    ViewsData $view_data
+    ViewsData $view_data,
+    LeafletService $leaflet_service
   ) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
 
@@ -120,6 +131,7 @@ class LeafletMarker extends RowPluginBase implements ContainerFactoryPluginInter
     $this->entityDisplay = $entity_display;
     $this->renderer = $renderer;
     $this->viewsData = $view_data;
+    $this->leafletService = $leaflet_service;
   }
 
   /**
@@ -134,7 +146,8 @@ class LeafletMarker extends RowPluginBase implements ContainerFactoryPluginInter
       $container->get('entity_field.manager'),
       $container->get('entity_display.repository'),
       $container->get('renderer'),
-      $container->get('views.views_data')
+      $container->get('views.views_data'),
+      $container->get('leaflet.service')
     );
   }
 
@@ -164,6 +177,7 @@ class LeafletMarker extends RowPluginBase implements ContainerFactoryPluginInter
       $label = $handler->adminLabel() ?: $field_id;
       $fields[$field_id] = $label;
       if (is_a($handler, 'Drupal\views\Plugin\views\field\EntityField')) {
+        /* @var \Drupal\views\Plugin\views\field\EntityField $handler */
         $field_storage_definitions = $this->entityFieldManager
           ->getFieldStorageDefinitions($handler->getEntityType());
         $field_storage_definition = $field_storage_definitions[$handler->definition['field_name']];
@@ -249,6 +263,7 @@ class LeafletMarker extends RowPluginBase implements ContainerFactoryPluginInter
    * {@inheritdoc}
    */
   public function render($row) {
+    /* @var \Drupal\views\ResultRow $row */
     $geofield_value = $this->view->getStyle()->getFieldValue($row->index, $this->options['data_source']);
 
     if (empty($geofield_value)) {
@@ -257,7 +272,7 @@ class LeafletMarker extends RowPluginBase implements ContainerFactoryPluginInter
 
     // @TODO This assumes that the user has selected WKT as the geofield output
     // formatter in the views field settings, and fails otherwise. Very brittle.
-    $result = leaflet_process_geofield($geofield_value);
+    $result = $this->leafletService->leafletProcessGeofield($geofield_value);
 
     // Convert the list of geo data points into a list of leaflet markers.
     return $this->renderLeafletMarkers($result, $row);
@@ -267,7 +282,8 @@ class LeafletMarker extends RowPluginBase implements ContainerFactoryPluginInter
    * Converts the given list of geo data points into a list of leaflet markers.
    *
    * @param array $points
-   *   A list of geofield points from {@link leaflet_process_geofield()}.
+   *   A list of geofield points from
+   *   {@link \Drupal::service('leaflet.service')->leafletProcessGeofield()}.
    * @param \Drupal\views\ResultRow $row
    *   The views result row.
    *
@@ -280,7 +296,7 @@ class LeafletMarker extends RowPluginBase implements ContainerFactoryPluginInter
     if ($this->options['description_field'] === '#rendered_entity' && is_object($row->_entity)) {
       $entity = $row->_entity;
       $build = $this->entityManager->getViewBuilder($entity->getEntityTypeId())->view($entity, $this->options['view_mode'], $entity->language());
-      $popup_body = $this->renderer->render($build);
+      $popup_body = $this->renderer->renderRoot($build);
     }
     // Normal rendering via fields.
     elseif ($this->options['description_field']) {

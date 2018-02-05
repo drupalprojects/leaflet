@@ -5,8 +5,6 @@
  * Contains the leaflet.module file.
  */
 
-use Drupal\Component\Utility\Html;
-
 /**
  * Implements hook_theme().
  */
@@ -17,42 +15,6 @@ function leaflet_theme() {
         'map_id' => NULL,
         'height' => '400px',
         'map' => [],
-      ],
-    ],
-  ];
-}
-
-/**
- * Load all Leaflet required client files and return markup for a map.
- *
- * @param array $map
- *   The map settings array.
- * @param array $features
- *   The features array.
- * @param string $height
- *   The height value string.
- *
- * @return array
- *   The leaflet_map render array.
- */
-function leaflet_render_map(array $map, array $features = [], $height = '400px') {
-  $map_id = Html::getUniqueId('leaflet_map');
-
-  $settings[$map_id] = [
-    'mapId' => $map_id,
-    'map' => $map,
-    // JS only works with arrays, make sure we have one with numeric keys.
-    'features' => array_values($features),
-  ];
-  return [
-    '#theme' => 'leaflet_map',
-    '#map_id' => $map_id,
-    '#height' => $height,
-    '#map' => $map,
-    '#attached' => [
-      'library' => ['leaflet/leaflet-drupal'],
-      'drupalSettings' => [
-        'leaflet' => $settings,
       ],
     ],
   ];
@@ -98,7 +60,7 @@ function leaflet_map_get_info($map = NULL) {
 }
 
 /**
- * Implements hook_foo().
+ * Implements hook_leaflet_map_info().
  */
 function leaflet_leaflet_map_info() {
   return [
@@ -128,95 +90,4 @@ function leaflet_leaflet_map_info() {
         ],
       ],
   ];
-}
-
-/**
- * Convert a geofield into an array of map points.
- *
- * The map points can then be fed into leaflet_render_map().
- *
- * @param mixed $items
- *   A single value or array of geo values, each as a string in any of the
- *   supported formats or as an array of $item elements, each with a
- *   $item['wkt'] field.
- *
- * @return array
- *   The return array.
- */
-function leaflet_process_geofield($items = []) {
-
-  if (!is_array($items)) {
-    $items = [$items];
-  }
-  $data = [];
-  foreach ($items as $item) {
-    // Auto-detect and parse the format (e.g. WKT, JSON etc).
-    /* @var \GeometryCollection $geom */
-    if (!($geom = \Drupal::service('geofield.geophp')->load(isset($item['wkt']) ? $item['wkt'] : $item))) {
-      continue;
-    }
-    $datum = ['type' => strtolower($geom->geometryType())];
-
-    switch ($datum['type']) {
-      case 'point':
-        $datum += [
-          'lat' => $geom->getY(),
-          'lon' => $geom->getX(),
-        ];
-        break;
-
-      case 'linestring':
-        $components = $geom->getComponents();
-        /* @var \Geometry $component */
-        foreach ($components as $component) {
-          $datum['points'][] = [
-            'lat' => $component->getY(),
-            'lon' => $component->getX(),
-          ];
-        }
-        break;
-
-      case 'polygon':
-        /* @var \Collection[] $tmp */
-        $tmp = $geom->getComponents();
-        $components = $tmp[0]->getComponents();
-        /* @var \Geometry $component */
-        foreach ($components as $component) {
-          $datum['points'][] = [
-            'lat' => $component->getY(),
-            'lon' => $component->getX(),
-          ];
-        }
-        break;
-
-      case 'multipolygon':
-      case 'multipolyline':
-      case 'multilinestring':
-        if ($datum['type'] == 'multilinestring') {
-          $datum['type'] = 'multipolyline';
-        }
-        if ($datum['type'] == 'multipolygon') {
-          $tmp = $geom->getComponents();
-          $components = $tmp[0]->getComponents();
-        }
-        else {
-          $components = $geom->getComponents();
-        }
-        foreach ($components as $key => $component) {
-          /* @var \GeometryCollection $component */
-          $subcomponents = $component->getComponents();
-          /* @var \Geometry $subcomponent */
-          foreach ($subcomponents as $subcomponent) {
-            $datum['component'][$key]['points'][] = [
-              'lat' => $subcomponent->getY(),
-              'lon' => $subcomponent->getX(),
-            ];
-          }
-          unset($subcomponent);
-        }
-        break;
-    }
-    $data[] = $datum;
-  }
-  return $data;
 }

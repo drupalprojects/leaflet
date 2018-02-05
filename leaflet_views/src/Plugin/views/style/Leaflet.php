@@ -5,6 +5,13 @@ namespace Drupal\leaflet_views\Plugin\views\style;
 use Drupal\Component\Utility\NestedArray;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\views\Plugin\views\style\StylePluginBase;
+use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
+use Symfony\Component\DependencyInjection\ContainerInterface;
+use Drupal\Core\Entity\EntityTypeManagerInterface;
+use Drupal\Core\Entity\EntityFieldManagerInterface;
+use Drupal\Core\Entity\EntityDisplayRepositoryInterface;
+use Drupal\Core\Render\RendererInterface;
+use Drupal\Leaflet\LeafletService;
 
 /**
  * Style plugin to render a View output as a Leaflet map.
@@ -22,7 +29,7 @@ use Drupal\views\Plugin\views\style\StylePluginBase;
  *   no_ui = TRUE
  * )
  */
-class Leaflet extends StylePluginBase {
+class Leaflet extends StylePluginBase implements ContainerFactoryPluginInterface {
 
   /**
    * Does the style plugin support grouping of rows.
@@ -30,6 +37,96 @@ class Leaflet extends StylePluginBase {
    * @var bool
    */
   protected $usesGrouping = FALSE;
+
+  /**
+   * The Entity type manager service.
+   *
+   * @var \Drupal\Core\Entity\EntityTypeManagerInterface
+   */
+  protected $entityManager;
+
+  /**
+   * The Entity Field manager service property.
+   *
+   * @var \Drupal\Core\Entity\EntityFieldManagerInterface
+   */
+  protected $entityFieldManager;
+
+  /**
+   * The Entity Display Repository service property.
+   *
+   * @var \Drupal\Core\Entity\EntityDisplayRepositoryInterface
+   */
+  protected $entityDisplay;
+
+  /**
+   * The Renderer service property.
+   *
+   * @var \Drupal\Core\Entity\EntityDisplayRepositoryInterface
+   */
+  protected $renderer;
+
+  /**
+   * Leaflet service.
+   *
+   * @var \Drupal\Leaflet\LeafletService
+   */
+  protected $leafletService;
+
+  /**
+   * Constructs a LeafletMap style instance.
+   *
+   * @param array $configuration
+   *   A configuration array containing information about the plugin instance.
+   * @param string $plugin_id
+   *   The plugin_id for the formatter.
+   * @param mixed $plugin_definition
+   *   The plugin implementation definition.
+   * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_manager
+   *   The entity manager.
+   * @param \Drupal\Core\Entity\EntityFieldManagerInterface $entity_field_manager
+   *   The entity field manager.
+   * @param \Drupal\Core\Entity\EntityDisplayRepositoryInterface $entity_display
+   *   The entity display manager.
+   * @param \Drupal\Core\Render\RendererInterface $renderer
+   *   The renderer.
+   * @param \Drupal\Leaflet\LeafletService $leaflet_service
+   *   The Leaflet service.
+   */
+  public function __construct(
+    array $configuration,
+    $plugin_id,
+    $plugin_definition,
+    EntityTypeManagerInterface $entity_manager,
+    EntityFieldManagerInterface $entity_field_manager,
+    EntityDisplayRepositoryInterface $entity_display,
+    RendererInterface $renderer,
+    LeafletService $leaflet_service
+  ) {
+    parent::__construct($configuration, $plugin_id, $plugin_definition);
+
+    $this->entityManager = $entity_manager;
+    $this->entityFieldManager = $entity_field_manager;
+    $this->entityDisplay = $entity_display;
+    $this->renderer = $renderer;
+    $this->leafletService = $leaflet_service;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
+    return new static(
+      $configuration,
+      $plugin_id,
+      $plugin_definition,
+      $container->get('entity_type.manager'),
+      $container->get('entity_field.manager'),
+      $container->get('entity_display.repository'),
+      $container->get('renderer'),
+      $container->get('leaflet.service')
+    );
+  }
 
   /**
    * {@inheritdoc}
@@ -108,7 +205,7 @@ class Leaflet extends StylePluginBase {
     if (self::hasFeatureGroups($features)) {
       $map_info['settings'] += ['layerControl' => TRUE];
     }
-    $element = leaflet_render_map($map_info, $features, $this->options['height'] . 'px');
+    $element = $this->leafletService->leafletRenderMap($map_info, $features, $this->options['height'] . 'px');
 
     // Merge #attached libraries.
     $this->view->element['#attached'] = NestedArray::mergeDeep($this->view->element['#attached'], $element['#attached']);
