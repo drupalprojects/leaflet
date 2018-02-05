@@ -1,3 +1,9 @@
+general:
+  version: 1.x
+  css:
+    component:
+      css/leaflet_general.css: {}
+
 leaflet:
   remote: http://leafletjs.com/
   version: 1.0.2

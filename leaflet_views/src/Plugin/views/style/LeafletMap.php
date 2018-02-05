@@ -184,9 +184,19 @@ class LeafletMap extends StylePluginBase implements ContainerFactoryPluginInterf
 
     // Check whether we have a geo data field we can work with.
     if (!count($fields_geo_data)) {
-      $form['error'] = array(
-        '#markup' => $this->t('Please add at least one geofield to the view.'),
-      );
+      $form['error'] = [
+        '#type' => 'html_tag',
+        '#tag' => 'div',
+        '#value' => $this->t('Please add at least one Geofield to the View and come back here to set it as Data Source.'),
+        '#attributes' => [
+          'class' => ['leaflet-warning'],
+        ],
+        '#attached' => [
+          'library' => [
+            'leaflet/general',
+          ],
+        ],
+      ];
       return;
     }
 
@@ -380,7 +390,7 @@ class LeafletMap extends StylePluginBase implements ContainerFactoryPluginInterf
     if (!empty($style_options['height']) && (!is_numeric($style_options['height']) || $style_options['height'] <= 0)) {
       $form_state->setError($form['height'], $this->t('Map height needs to be a positive number.'));
     }
-    $icon_options = $style_options['icon'];
+    $icon_options = isset($style_options['icon']) ? $style_options['icon'] : [];
     if (!empty($icon_options['iconUrl']) && !UrlHelper::isValid($icon_options['iconUrl'])) {
       $form_state->setError($form['icon']['iconUrl'], $this->t('Icon URL is invalid.'));
     }
