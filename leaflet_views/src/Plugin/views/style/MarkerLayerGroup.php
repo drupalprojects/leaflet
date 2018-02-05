@@ -26,7 +26,7 @@ class MarkerLayerGroup extends MarkerDefault {
   /**
    * {@inheritdoc}
    */
-  public function renderGrouping($records, $groupings = array(), $group_rendered = NULL) {
+  public function renderGrouping($records, $groupings = [], $group_rendered = NULL) {
     $sets = parent::renderGrouping($records, $groupings, $group_rendered);
     if (!$groupings) {
       // Set group label to display label, if empty.
@@ -39,12 +39,12 @@ class MarkerLayerGroup extends MarkerDefault {
   /**
    * {@inheritdoc}
    */
-  protected function renderLeafletGroup(array $features = array(), $title = '', $level = 0) {
-    return array(
+  protected function renderLeafletGroup(array $features = [], $title = '', $level = 0) {
+    return [
       'group' => TRUE,
       'label' => $title,
       'features' => $features,
-    );
+    ];
   }
 
 }

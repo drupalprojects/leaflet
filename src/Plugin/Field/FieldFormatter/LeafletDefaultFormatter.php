@@ -24,7 +24,7 @@ class LeafletDefaultFormatter extends FormatterBase {
    * {@inheritdoc}
    */
   public static function defaultSettings() {
-    return array(
+    return [
       'leaflet_map' => 'OSM Mapnik',
       'height' => 400,
       'zoom' => 10,
@@ -33,15 +33,15 @@ class LeafletDefaultFormatter extends FormatterBase {
       'minZoom' => 0,
       'maxZoom' => 18,
       'popup' => FALSE,
-      'icon' => array(
+      'icon' => [
         'icon_url' => '',
         'shadow_url' => '',
-        'icon_size' => array('x' => 0, 'y' => 0),
-        'icon_anchor' => array('x' => 0, 'y' => 0),
-        'shadow_anchor' => array('x' => 0, 'y' => 0),
-        'popup_anchor' => array('x' => 0, 'y' => 0),
-      ),
-    ) + parent::defaultSettings();
+        'icon_size' => ['x' => 0, 'y' => 0],
+        'icon_anchor' => ['x' => 0, 'y' => 0],
+        'shadow_anchor' => ['x' => 0, 'y' => 0],
+        'popup_anchor' => ['x' => 0, 'y' => 0],
+      ],
+    ] + parent::defaultSettings();
   }
 
   /**
@@ -54,138 +54,138 @@ class LeafletDefaultFormatter extends FormatterBase {
     foreach (leaflet_map_get_info() as $key => $map) {
       $leaflet_map_options[$key] = $map['label'];
     }
-    $elements['leaflet_map'] = array(
+    $elements['leaflet_map'] = [
       '#title' => $this->t('Leaflet Map'),
       '#type' => 'select',
       '#options' => $leaflet_map_options,
       '#default_value' => $this->getSetting('leaflet_map'),
       '#required' => TRUE,
-    );
+    ];
     $zoom_options = [];
     for ($i = $this->getSetting('minPossibleZoom'); $i <= $this->getSetting('maxPossibleZoom'); $i++) {
       $zoom_options[$i] = $i;
     }
-    $elements['zoom'] = array(
+    $elements['zoom'] = [
       '#title' => $this->t('Zoom'),
       '#type' => 'select',
       '#options' => $zoom_options,
       '#default_value' => $this->getSetting('zoom'),
       '#required' => TRUE,
-    );
-    $elements['minZoom'] = array(
+    ];
+    $elements['minZoom'] = [
       '#title' => $this->t('Min. Zoom'),
       '#type' => 'select',
       '#options' => $zoom_options,
       '#default_value' => $this->getSetting('minZoom'),
       '#required' => TRUE,
-    );
-    $elements['maxZoom'] = array(
+    ];
+    $elements['maxZoom'] = [
       '#title' => $this->t('Max. Zoom'),
       '#type' => 'select',
       '#options' => $zoom_options,
       '#default_value' => $this->getSetting('maxZoom'),
       '#required' => TRUE,
-    );
-    $elements['height'] = array(
+    ];
+    $elements['height'] = [
       '#title' => $this->t('Map Height'),
       '#type' => 'number',
       '#default_value' => $this->getSetting('height'),
       '#field_suffix' => $this->t('px'),
-    );
-    $elements['popup'] = array(
+    ];
+    $elements['popup'] = [
       '#title' => $this->t('Popup'),
       '#description' => $this->t('Show a popup for single location fields.'),
       '#type' => 'checkbox',
       '#default_value' => $this->getSetting('popup'),
-    );
+    ];
     $icon = $this->getSetting('icon');
-    $elements['icon'] = array(
+    $elements['icon'] = [
       '#title' => $this->t('Map Icon'),
       '#description' => $this->t('These settings will overwrite the icon settings defined in the map definition.'),
       '#type' => 'fieldset',
       '#collapsible' => TRUE,
       '#collapsed' => empty($icon),
-    );
-    $elements['icon']['icon_url'] = array(
+    ];
+    $elements['icon']['icon_url'] = [
       '#title' => $this->t('Icon URL'),
       '#description' => $this->t('Can be an absolute or relative URL.'),
       '#type' => 'textfield',
       '#maxlength' => 999,
       '#default_value' => $icon['icon_url'],
-      '#element_validate' => array(array($this, 'validateUrl')),
-    );
-    $elements['icon']['shadow_url'] = array(
+      '#element_validate' => [[$this, 'validateUrl']],
+    ];
+    $elements['icon']['shadow_url'] = [
       '#title' => $this->t('Icon Shadow URL'),
       '#type' => 'textfield',
       '#maxlength' => 999,
       '#default_value' => $icon['shadow_url'],
-      '#element_validate' => array(array($this, 'validateUrl')),
-    );
+      '#element_validate' => [[$this, 'validateUrl']],
+    ];
 
-    $elements['icon']['icon_size'] = array(
+    $elements['icon']['icon_size'] = [
       '#title' => $this->t('Icon Size'),
       '#type' => 'fieldset',
       '#collapsible' => FALSE,
       '#description' => $this->t('Size of the icon image in pixels.'),
-    );
-    $elements['icon']['icon_size']['x'] = array(
+    ];
+    $elements['icon']['icon_size']['x'] = [
       '#title' => $this->t('Width'),
       '#type' => 'number',
       '#default_value' => $icon['icon_size']['x'],
-    );
-    $elements['icon']['icon_size']['y'] = array(
+    ];
+    $elements['icon']['icon_size']['y'] = [
       '#title' => $this->t('Height'),
       '#type' => 'number',
       '#default_value' => $icon['icon_size']['y'],
-    );
-    $elements['icon']['icon_anchor'] = array(
+    ];
+    $elements['icon']['icon_anchor'] = [
       '#title' => $this->t('Icon Anchor'),
       '#type' => 'fieldset',
       '#collapsible' => FALSE,
       '#description' => $this->t('The coordinates of the "tip" of the icon (relative to its top left corner). The icon will be aligned so that this point is at the marker\'s geographical location.'),
-    );
-    $elements['icon']['icon_anchor']['x'] = array(
+    ];
+    $elements['icon']['icon_anchor']['x'] = [
       '#title' => $this->t('X'),
       '#type' => 'number',
       '#default_value' => $icon['icon_anchor']['x'],
-    );
-    $elements['icon']['icon_anchor']['y'] = array(
+    ];
+    $elements['icon']['icon_anchor']['y'] = [
       '#title' => $this->t('Y'),
       '#type' => 'number',
       '#default_value' => $icon['icon_anchor']['y'],
-    );
-    $elements['icon']['shadow_anchor'] = array(
+    ];
+    $elements['icon']['shadow_anchor'] = [
       '#title' => $this->t('Shadow Anchor'),
       '#type' => 'fieldset',
       '#collapsible' => FALSE,
       '#description' => $this->t('The point from which the shadow is shown.'),
-    );
-    $elements['icon']['shadow_anchor']['x'] = array(
+    ];
+    $elements['icon']['shadow_anchor']['x'] = [
       '#title' => $this->t('X'),
       '#type' => 'number',
       '#default_value' => $icon['shadow_anchor']['x'],
-    );
-    $elements['icon']['shadow_anchor']['y'] = array(
+    ];
+    $elements['icon']['shadow_anchor']['y'] = [
       '#title' => $this->t('Y'),
       '#type' => 'number',
       '#default_value' => $icon['shadow_anchor']['y'],
-    );
-    $elements['icon']['popup_anchor'] = array(
+    ];
+    $elements['icon']['popup_anchor'] = [
       '#title' => $this->t('Popup Anchor'),
       '#type' => 'fieldset',
       '#collapsible' => FALSE,
       '#description' => $this->t('The point from which the marker popup opens, relative to the anchor point.'),
-    );
-    $elements['icon']['popup_anchor']['x'] = array(
+    ];
+    $elements['icon']['popup_anchor']['x'] = [
       '#title' => $this->t('X'),
       '#type' => 'number',
       '#default_value' => $icon['popup_anchor']['x'],
-    );
-    $elements['icon']['popup_anchor']['y'] = array(
+    ];
+    $elements['icon']['popup_anchor']['y'] = [
       '#title' => $this->t('Y'),
       '#type' => 'number',
       '#default_value' => $icon['popup_anchor']['y'],
-    );
+    ];
 
     return $elements;
   }
@@ -194,9 +194,9 @@ class LeafletDefaultFormatter extends FormatterBase {
    * {@inheritdoc}
    */
   public function settingsSummary() {
-    $summary = array();
-    $summary[] = $this->t('Leaflet Map: @map', array('@map' => $this->getSetting('leaflet_map')));
-    $summary[] = $this->t('Map height: @height px', array('@height' => $this->getSetting('height')));
+    $summary = [];
+    $summary[] = $this->t('Leaflet Map: @map', ['@map' => $this->getSetting('leaflet_map')]);
+    $summary[] = $this->t('Map height: @height px', ['@height' => $this->getSetting('height')]);
     return $summary;
   }
 
@@ -214,7 +214,7 @@ class LeafletDefaultFormatter extends FormatterBase {
     $map['settings']['minZoom'] = isset($settings['minZoom']) ? $settings['minZoom'] : NULL;
     $map['settings']['maxZoom'] = isset($settings['zoom']) ? $settings['maxZoom'] : NULL;
 
-    $elements = array();
+    $elements = [];
     foreach ($items as $delta => $item) {
 
       $features = leaflet_process_geofield($item->value);

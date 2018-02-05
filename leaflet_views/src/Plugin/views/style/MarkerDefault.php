@@ -69,7 +69,7 @@ class MarkerDefault extends StylePluginBase implements ContainerFactoryPluginInt
    *   The plugin_id for the formatter.
    * @param mixed $plugin_definition
    *   The plugin implementation definition.
-   * @param ModuleHandlerInterface $module_handler
+   * @param \Drupal\Core\Extension\ModuleHandlerInterface $module_handler
    *   The modules handler.
    */
   public function __construct(
@@ -100,7 +100,7 @@ class MarkerDefault extends StylePluginBase implements ContainerFactoryPluginInt
    * {@inheritdoc}
    */
   public function renderGroupingSets($sets, $level = 0) {
-    $output = array();
+    $output = [];
     foreach ($sets as $set) {
       if ($this->usesRowPlugin()) {
         foreach ($set['rows'] as $index => $row) {
@@ -112,7 +112,7 @@ class MarkerDefault extends StylePluginBase implements ContainerFactoryPluginInt
           }
         }
       }
-      $set['features'] = array();
+      $set['features'] = [];
       foreach ($set['rows'] as $group) {
         $set['features'] = array_merge($set['features'], $group);
       }
@@ -122,7 +122,7 @@ class MarkerDefault extends StylePluginBase implements ContainerFactoryPluginInt
         continue;
       }
 
-      if ($feature_group = $this->renderLeafletGroup($set['features'], $set['group'], $level)) {
+      if ($feature_group = $this->renderLeafletGroup($set['group'], $level, $set['features'])) {
         // Allow modules to adjust the feature group.
         $this->moduleHandler->alter('leaflet_views_feature_group', $feature_group, $this);
 
@@ -145,30 +145,30 @@ class MarkerDefault extends StylePluginBase implements ContainerFactoryPluginInt
    *
    * @param array $points
    *   The Marker Points.
-   * @param ResultRow $row
+   * @param \Drupal\views\ResultRow $row
    *   The Result rows.
    */
-  protected function alterLeafletMarkerPoints(&$points, ResultRow $row) {
+  protected function alterLeafletMarkerPoints(array &$points, ResultRow $row) {
   }
 
   /**
    * Render a single group of leaflet markers.
    *
-   * @param array $features
-   *   The list of leaflet features / points.
    * @param string $title
    *   The group title.
    * @param string $level
    *   The current group level.
+   * @param array $features
+   *   The list of leaflet features / points.
    *
    * @return array
    *   Definition of leaflet markers, compatible with leaflet_render_map().
    */
-  protected function renderLeafletGroup(array $features = array(), $title, $level) {
-    return array(
+  protected function renderLeafletGroup($title, $level, array $features = []) {
+    return [
       'group' => FALSE,
       'features' => $features,
-    );
+    ];
   }
 
 }

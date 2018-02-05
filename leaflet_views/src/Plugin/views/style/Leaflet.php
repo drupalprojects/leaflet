@@ -37,27 +37,27 @@ class Leaflet extends StylePluginBase {
   public function buildOptionsForm(&$form, FormStateInterface $form_state) {
     parent::buildOptionsForm($form, $form_state);
 
-    // Choose a map preset
-    $map_options = array();
+    // Choose a map preset.
+    $map_options = [];
     foreach (leaflet_map_get_info() as $key => $map) {
-      $map_options[$key] = $this->t($map['label']);
+      $map_options[$key] = $map['label'];
     }
-    $form['map'] = array(
+    $form['map'] = [
       '#title' => $this->t('Map'),
       '#type' => 'select',
       '#options' => $map_options,
       '#default_value' => $this->options['map'] ?: '',
       '#required' => TRUE,
-    );
+    ];
 
-    $form['height'] = array(
+    $form['height'] = [
       '#title' => $this->t('Map height'),
       '#type' => 'textfield',
       '#field_suffix' => $this->t('px'),
       '#size' => 4,
       '#default_value' => $this->options['height'],
       '#required' => TRUE,
-    );
+    ];
 
     // @todo add note about adding leaflet attachments for data points.
   }
@@ -68,7 +68,7 @@ class Leaflet extends StylePluginBase {
   public function validateOptionsForm(&$form, FormStateInterface $form_state) {
     parent::validateOptionsForm($form, $form_state);
 
-    $height = $form_state->getValue(array('style_options', 'height'));
+    $height = $form_state->getValue(['style_options', 'height']);
     if (!empty($style_options['height']) && (!is_numeric($height) || $height <= 0)) {
       $form_state->setError($form['height'], $this->t('Map height needs to be a positive number.'));
     }
@@ -94,7 +94,7 @@ class Leaflet extends StylePluginBase {
    * {@inheritdoc}
    */
   public function render() {
-    $features = array();
+    $features = [];
     foreach ($this->view->attachment_before as $id => $attachment) {
       if (!empty($attachment['#leaflet-attachment'])) {
         $features = array_merge($features, $attachment['rows']);
@@ -106,7 +106,7 @@ class Leaflet extends StylePluginBase {
     $map_info = leaflet_map_get_info($this->options['map']);
     // Enable layer control by default, if we have more than one feature group.
     if (self::hasFeatureGroups($features)) {
-      $map_info['settings'] += array('layerControl' => TRUE);
+      $map_info['settings'] += ['layerControl' => TRUE];
     }
     $element = leaflet_render_map($map_info, $features, $this->options['height'] . 'px');
 
@@ -118,11 +118,13 @@ class Leaflet extends StylePluginBase {
   }
 
   /**
-   * Checks whether the given array of features contains any groups, i.e.
-   * elements having the "group" key set to TRUE.
+   * Checks whether the given array of features contains any groups.
    *
    * @param array $features
+   *   The features.
+   *
    * @return bool
+   *   The result.
    */
   protected static function hasFeatureGroups(array $features) {
     foreach ($features as $feature) {
@@ -139,7 +141,7 @@ class Leaflet extends StylePluginBase {
   public function validate() {
     $errors = parent::validate();
     if (empty($this->options['map'])) {
-      $errors[] = $this->t('Style @style requires a leaflet map to be configured.', array('@style' => $this->definition['title']));
+      $errors[] = $this->t('Style @style requires a leaflet map to be configured.', ['@style' => $this->definition['title']]);
     }
     return $errors;
   }
@@ -149,8 +151,9 @@ class Leaflet extends StylePluginBase {
    */
   protected function defineOptions() {
     $options = parent::defineOptions();
-    $options['map'] = array('default' => '');
-    $options['height'] = array('default' => '400');
+    $options['map'] = ['default' => ''];
+    $options['height'] = ['default' => '400'];
     return $options;
   }
+
 }

@@ -36,7 +36,8 @@ __$ composer require 'drupal/leaflet'__
       }
     }
 
-  * Run from your project package root (where the main composer.json file is sited):  
+  * Run from your project package root (where the main composer.json file is 
+  sited):  
   __$ composer require leaflet/leaflet:~1.0__  
   
 3. Enable the module to be able to use the a configurable __Leaflet Map as 

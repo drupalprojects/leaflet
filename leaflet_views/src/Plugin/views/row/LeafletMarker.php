@@ -157,8 +157,8 @@ class LeafletMarker extends RowPluginBase implements ContainerFactoryPluginInter
 
     // Get a list of fields and a sublist of geo data fields in this view.
     // @TODO use $fields = $this->displayHandler->getFieldLabels();
-    $fields = array();
-    $fields_geo_data = array();
+    $fields = [];
+    $fields_geo_data = [];
     /* @var \Drupal\views\Plugin\views\ViewsHandlerInterface $handler */
     foreach ($this->displayHandler->getHandlers('field') as $field_id => $handler) {
       $label = $handler->adminLabel() ?: $field_id;
@@ -176,72 +176,72 @@ class LeafletMarker extends RowPluginBase implements ContainerFactoryPluginInter
 
     // Check whether we have a geo data field we can work with.
     if (!count($fields_geo_data)) {
-      $form['error'] = array(
+      $form['error'] = [
         '#markup' => $this->t('Please add at least one geofield to the view.'),
-      );
+      ];
       return;
     }
 
     // Map preset.
-    $form['data_source'] = array(
+    $form['data_source'] = [
       '#type' => 'select',
       '#title' => $this->t('Data Source'),
       '#description' => $this->t('Which field contains geodata?'),
       '#options' => $fields_geo_data,
       '#default_value' => $this->options['data_source'],
       '#required' => TRUE,
-    );
+    ];
 
     // Name field.
-    $form['name_field'] = array(
+    $form['name_field'] = [
       '#type' => 'select',
       '#title' => $this->t('Title Field'),
       '#description' => $this->t('Choose the field which will appear as a title on tooltips.'),
       '#options' => $fields,
       '#default_value' => $this->options['name_field'],
       '#empty_value' => '',
-    );
+    ];
 
     $desc_options = $fields;
     // Add an option to render the entire entity using a view mode.
     if ($this->entityTypeId) {
-      $desc_options += array(
-        '#rendered_entity' => '<' . $this->t('Rendered @entity entity', array('@entity' => $this->entityTypeId)) . '>',
-      );
+      $desc_options += [
+        '#rendered_entity' => '<' . $this->t('Rendered @entity entity', ['@entity' => $this->entityTypeId]) . '>',
+      ];
     }
 
-    $form['description_field'] = array(
+    $form['description_field'] = [
       '#type' => 'select',
       '#title' => $this->t('Description Field'),
       '#description' => $this->t('Choose the field or rendering method which will appear as a description on tooltips or popups.'),
       '#options' => $desc_options,
       '#default_value' => $this->options['description_field'],
       '#empty_value' => '',
-    );
+    ];
 
     if ($this->entityTypeId) {
 
       // Get the human readable labels for the entity view modes.
-      $view_mode_options = array();
+      $view_mode_options = [];
       foreach ($this->entityDisplay->getViewModes($this->entityTypeId) as $key => $view_mode) {
         $view_mode_options[$key] = $view_mode['label'];
       }
       // The View Mode drop-down is visible conditional on "#rendered_entity"
       // being selected in the Description drop-down above.
-      $form['view_mode'] = array(
+      $form['view_mode'] = [
         '#type' => 'select',
         '#title' => $this->t('View mode'),
         '#description' => $this->t('View modes are ways of displaying entities.'),
         '#options' => $view_mode_options,
         '#default_value' => !empty($this->options['view_mode']) ? $this->options['view_mode'] : 'full',
-        '#states' => array(
-          'visible' => array(
-            ':input[name="row_options[description_field]"]' => array(
+        '#states' => [
+          'visible' => [
+            ':input[name="row_options[description_field]"]' => [
               'value' => '#rendered_entity',
-            ),
-          ),
-        ),
-      );
+            ],
+          ],
+        ],
+      ];
     }
   }
 
@@ -325,7 +325,7 @@ class LeafletMarker extends RowPluginBase implements ContainerFactoryPluginInter
     $errors = parent::validate();
     // @todo raise validation error if we have no geofield.
     if (empty($this->options['data_source'])) {
-      $errors[] = $this->t('Row @row requires the data source to be configured.', array('@row' => $this->definition['title']));
+      $errors[] = $this->t('Row @row requires the data source to be configured.', ['@row' => $this->definition['title']]);
     }
     return $errors;
   }
@@ -336,10 +336,10 @@ class LeafletMarker extends RowPluginBase implements ContainerFactoryPluginInter
   protected function defineOptions() {
     $options = parent::defineOptions();
 
-    $options['data_source'] = array('default' => '');
-    $options['name_field'] = array('default' => '');
-    $options['description_field'] = array('default' => '');
-    $options['view_mode'] = array('default' => 'teaser');
+    $options['data_source'] = ['default' => ''];
+    $options['name_field'] = ['default' => ''];
+    $options['description_field'] = ['default' => ''];
+    $options['view_mode'] = ['default' => 'teaser'];
 
     return $options;
   }
