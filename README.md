@@ -22,7 +22,7 @@ __$ composer require 'drupal/leaflet'__
 2. Enable the module to be able to use the configurable __Leaflet Map as 
 Geofield Formatter__;
 
-3. Enable "Leaflet Views" (leaflet_view) submodule for Leaflet Map Views 
+3. Enable "Leaflet Views" (leaflet_views) submodule for Leaflet Map Views 
 integration.
 You need to add at least one geofield to the Fields list, and select the Leaflet
 Map style in the Display Format. 
