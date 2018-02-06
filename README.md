@@ -81,7 +81,9 @@ View mode.
 
 Rendering a map is as simple as instantiating the LeafletService and its 
 leafletRenderMap method 
-(\Drupal::service('leaflet.service')->leafletRenderMap($map, $features, $height)),
+```
+\Drupal::service('leaflet.service')->leafletRenderMap($map, $features, $height)
+```
 which takes 3 parameters:
 
 * $map:
