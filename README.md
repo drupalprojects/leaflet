@@ -18,55 +18,11 @@ It is done simply running the following command from your project package root
 (where the main composer.json file is sited):  
 __$ composer require 'drupal/leaflet'__  
 (for dev: __$ composer require 'drupal/leaflet:1.x-dev'__)
-
-2. __Require/Add the Leaflet JS library via Composer:__  
-In order to do this, it is requested before to add the proper 
-   Leaflet JS library repository to your main composer.json file. 
-   It will be sited into the /Library folder. 
-   
-  * Under the "repositories" index add the 'leaflet' package reference:
-  ```
-  "repositories": {
-      "drupal": {
-        "type": "composer",
-        "url": "https://packages.drupal.org/8"
-      },
-      ...
-      "leaflet": {
-        "type": "package",
-        "package": {
-          "name": "leaflet/leaflet",
-          "version": "1.0.3",
-          "type": "drupal-library",
-          "dist": {
-            "url": "https://github.com/Leaflet/Leaflet/archive/v1.0.3.zip",
-            "type": "zip"
-          }
-        }
-      },
-      ...
-    },
-   
-```
-  * Verify that the proper library destination folder is 
-  defined under "installer-paths" index in you (main/root) composer.json, 
-  and add it otherwise:
-  ```
-  "extra": {
-      "installer-paths": {
-        ...
-        "[path_to_drupal_folder]/libraries/{$name}": ["type:drupal-library"],
-        ...
-      },
-  }
-  ```
-  From your project package root (at the main composer.json level) run:  
-  __$ composer require leaflet/leaflet:~1.0__  
   
-3. Enable the module to be able to use the configurable __Leaflet Map as 
+2. Enable the module to be able to use the configurable __Leaflet Map as 
 Geofield Formatter__;
 
-4. Enable "Leaflet Views" (leaflet_view) submodule for Leaflet Map Views 
+3. Enable "Leaflet Views" (leaflet_view) submodule for Leaflet Map Views 
 integration.
 You need to add at least one geofield to the Fields list, and select the Leaflet
 Map style in the Display Format. 
