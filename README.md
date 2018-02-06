@@ -59,10 +59,10 @@ The map height, expressed in css units.
 Roadmap
 -------
 
-* Better UI for managing maps
-* Move static & procedural API functions into Leaflet Services
-* Purge of not working / useless leaflet_views views classes
-* Better documentation
+* Better UI for managing maps: further functionalities for the Leaflet Map 
+Formatter and Leaflet Views and integration with Leaflet library API
+* Review & Purge of not working / useless leaflet_views views classes
+* Update documentation
 
 Authors/Credits
 ---------------
