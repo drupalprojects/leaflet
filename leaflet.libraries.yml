@@ -6,10 +6,10 @@ general:
 
 leaflet:
   remote: http://leafletjs.com/
-  version: 1.0.2
+  version: 1.0.3
   license:
     name: Leaflet-License
-    url: https://github.com/Leaflet/Leaflet/blob/v1.0.2/LICENSE
+    url: https://github.com/Leaflet/Leaflet/blob/v1.0.3/LICENSE
     gpl-compatible: true
   js:
     /libraries/leaflet/dist/leaflet.js: {}
