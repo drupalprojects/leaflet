@@ -56,16 +56,14 @@ so they can be controlled together,
 * $height:
 The map height, expressed in css units.
 
-Roadmap
--------
+####Roadmap
 
 * Better UI for managing maps: further functionalities for the Leaflet Map 
 Formatter and Leaflet Views and integration with Leaflet library API
 * Review & Purge of not working / useless leaflet_views views classes
 * Update documentation
 
-Authors/Credits
----------------
+####Authors/Credits
 
 * [levelos](http://drupal.org/user/54135)
 * [pvhee](http://drupal.org/user/108811)
