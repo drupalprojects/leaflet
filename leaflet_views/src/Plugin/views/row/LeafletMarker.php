@@ -294,7 +294,7 @@ class LeafletMarker extends RowPluginBase implements ContainerFactoryPluginInter
     if ($this->options['description_field'] === '#rendered_entity' && is_object($row->_entity)) {
       $entity = $row->_entity;
       $build = $this->entityManager->getViewBuilder($entity->getEntityTypeId())->view($entity, $this->options['view_mode'], $entity->language());
-      $popup_body = $this->renderer->renderRoot($build);
+      $popup_body = $this->renderer->renderPlain($build);
     }
     // Normal rendering via fields.
     elseif ($this->options['description_field']) {

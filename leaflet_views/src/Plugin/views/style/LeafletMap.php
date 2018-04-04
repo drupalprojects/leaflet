@@ -444,7 +444,7 @@ class LeafletMap extends StylePluginBase implements ContainerFactoryPluginInterf
           if ($this->options['description_field'] === '#rendered_entity' && isset($result->_entity)) {
             $entity = $result->_entity;
             $build = $this->entityManager->getViewBuilder($entity->getEntityTypeId())->view($entity, $this->options['view_mode'], $entity->language());
-            $description = $this->renderer->renderRoot($build);
+            $description = $this->renderer->renderPlain($build);
           }
           // Normal rendering via fields.
           elseif ($this->options['description_field']) {
