@@ -264,12 +264,14 @@
     this.bounds.push(latLng);
     var lMarker;
 
+    var tooltip = marker.label ? marker.label.replace(/<[^>]*>/g, '').trim() : '';
+
     if (marker.icon) {
       var icon = this.create_icon(marker.icon);
-      lMarker = new L.Marker(latLng, {icon: icon});
+      lMarker = new L.Marker(latLng, {icon: icon, title: tooltip});
     }
     else {
-      lMarker = new L.Marker(latLng);
+      lMarker = new L.Marker(latLng, {title: tooltip});
     }
     return lMarker;
   };
