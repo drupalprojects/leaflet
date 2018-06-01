@@ -432,11 +432,6 @@ class LeafletMap extends StylePluginBase implements ContainerFactoryPluginInterf
 
         $geofield_value = $this->getFieldValue($id, $geofield_name);
 
-        if (empty($geofield_value)) {
-          // In case the result is not among the raw results, get it from the
-          // rendered results. Cast markup to string.
-          $geofield_value = (string) $this->rendered_fields[$id][$geofield_name];
-        }
         if (!empty($geofield_value)) {
           $points = $this->leafletService->leafletProcessGeofield($geofield_value);
 
