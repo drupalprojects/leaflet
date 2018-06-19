@@ -14,6 +14,7 @@ use Drupal\Core\Entity\EntityFieldManagerInterface;
 use Drupal\Core\Entity\EntityDisplayRepositoryInterface;
 use Drupal\Core\Render\RendererInterface;
 use Drupal\Leaflet\LeafletService;
+use Drupal\Component\Utility\Html;
 
 /**
  * Style plugin to render a View output as a Leaflet map.
@@ -456,7 +457,9 @@ class LeafletMap extends StylePluginBase implements ContainerFactoryPluginInterf
           // Attach also titles, they might be used later on.
           if ($this->options['name_field']) {
             foreach ($points as &$point) {
-              $point['label'] = $this->rendered_fields[$id][$this->options['name_field']];
+              // Decode any entities because JS will encode them again and we
+              // don't want double encoding.
+              $point['label'] = Html::decodeEntities(($this->rendered_fields[$id][$this->options['name_field']]));
             }
           }
 
