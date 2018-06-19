@@ -301,8 +301,11 @@ class LeafletMap extends StylePluginBase implements ContainerFactoryPluginInterf
     $form['icon'] = [
       '#title' => $this->t('Map Icon'),
       '#type' => 'fieldset',
-      '#collapsible' => TRUE,
-      '#collapsed' => !isset($this->options['icon']['iconUrl']),
+      'description' => [
+        '#markup' => $this->t('For details on the following setup refer to @leaflet_icon_documentation_link', [
+          '@leaflet_icon_documentation_link' => $this->leafletService->leafletIconDocumentationLink(),
+        ]),
+      ],
     ];
 
     $form['icon']['iconUrl'] = [
@@ -424,8 +427,14 @@ class LeafletMap extends StylePluginBase implements ContainerFactoryPluginInterf
    * Renders the View.
    */
   public function render() {
+
+    // Performs some preprocess on the leaflet map settings.
+    $this->leafletService->preProcessMapSettings($this->options);
+
     $data = [];
+
     $geofield_name = $this->options['data_source'];
+
     if ($this->options['data_source']) {
       $this->renderFields($this->view->result);
       /* @var \Drupal\views\ResultRow $result */
@@ -463,21 +472,25 @@ class LeafletMap extends StylePluginBase implements ContainerFactoryPluginInterf
             }
           }
 
-          $data = array_merge($data, $points);
-
-          if (!empty($this->options['icon']) && $this->options['icon']['iconUrl']) {
-            foreach ($data as $key => $feature) {
-              $data[$key]['icon'] = $this->options['icon'];
+          // Attach iconUrl properties to each point.
+          if (!empty($this->options['icon']) && !empty($this->options['icon']['iconUrl'])) {
+            foreach ($points as &$point) {
+              $point['icon'] = $this->options['icon'];
             }
           }
 
-          // Allow modules to adjust the marker.
-          foreach ($data as &$feature) {
-            \Drupal::moduleHandler()
-              ->alter('leaflet_views_feature', $feature, $result, $this->view->rowPlugin);
-          }
+          // Add new points to the whole basket.
+          $data = array_merge($data, $points);
+
         }
       }
+
+      // Allow modules to adjust the marker.
+      foreach ($data as &$feature) {
+        \Drupal::moduleHandler()
+          ->alter('leaflet_views_feature', $feature, $result, $this->view->rowPlugin);
+      }
+
     }
 
     // Always render the map, even if we do not have any data.
