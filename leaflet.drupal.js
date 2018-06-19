@@ -319,23 +319,22 @@
   Drupal.Leaflet.prototype.create_json = function (json) {
     lJSON = new L.GeoJSON();
 
-    lJSON.on('featureparse', function (e) {
-      e.layer.bindPopup(e.properties.popup);
-
-      for (var layer_id in e.layer._layers) {
-        for (var i in e.layer._layers[layer_id]._latlngs) {
-          Drupal.Leaflet.bounds.push(e.layer._layers[layer_id]._latlngs[i]);
+    lJSON.options.onEachFeature = function(feature, layer){
+      for (var layer_id in layer._layers) {
+        for (var i in layer._layers[layer_id]._latlngs) {
+          Drupal.Leaflet.bounds.push(layer._layers[layer_id]._latlngs[i]);
         }
       }
-
-      if (e.properties.style) {
-        e.layer.setStyle(e.properties.style);
+      if (feature.properties.style) {
+        layer.setStyle(feature.properties.style);
       }
-
-      if (e.properties.leaflet_id) {
-        e.layer._leaflet_id = e.properties.leaflet_id;
+      if (feature.properties.leaflet_id) {
+        layer._leaflet_id = feature.properties.leaflet_id;
       }
-    });
+      if (feature.properties.popup) {
+        layer.bindPopup(feature.properties.popup);
+      }
+    }
 
     lJSON.addData(json);
     return lJSON;
