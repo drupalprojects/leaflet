@@ -470,6 +470,12 @@ class LeafletMap extends StylePluginBase implements ContainerFactoryPluginInterf
               $data[$key]['icon'] = $this->options['icon'];
             }
           }
+
+          // Allow modules to adjust the marker.
+          foreach ($data as &$feature) {
+            \Drupal::moduleHandler()
+              ->alter('leaflet_views_feature', $feature, $result, $this->view->rowPlugin);
+          }
         }
       }
     }
