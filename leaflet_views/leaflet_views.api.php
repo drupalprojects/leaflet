@@ -29,6 +29,7 @@ use Drupal\leaflet_views\Plugin\views\style\MarkerDefault;
  *   (optional) The row plugin used for rendering the feature.
  */
 function hook_leaflet_views_feature_alter(array &$feature, ResultRow $row, RowPluginBase $rowPlugin = NULL) {
+
 }
 
 /**
