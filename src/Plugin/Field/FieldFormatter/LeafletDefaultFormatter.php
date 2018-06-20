@@ -10,6 +10,7 @@ use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\Core\Field\FormatterBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Leaflet\LeafletService;
+use Drupal\leaflet\LeafletSettingsElementsTrait;
 
 /**
  * Plugin implementation of the 'leaflet_default' formatter.
@@ -23,6 +24,8 @@ use Drupal\Leaflet\LeafletService;
  * )
  */
 class LeafletDefaultFormatter extends FormatterBase implements ContainerFactoryPluginInterface {
+
+  use LeafletSettingsElementsTrait;
 
   /**
    * Leaflet service.
@@ -86,35 +89,58 @@ class LeafletDefaultFormatter extends FormatterBase implements ContainerFactoryP
    */
   public static function defaultSettings() {
     return [
-        'leaflet_map' => 'OSM Mapnik',
-        'height' => 400,
-        'zoom' => 10,
-        'minPossibleZoom' => 0,
-        'maxPossibleZoom' => 18,
-        'minZoom' => 0,
-        'maxZoom' => 18,
-        'popup' => FALSE,
-        'icon' => [
-          'iconUrl' => '',
-          'shadowUrl' => '',
-          'iconSize' => ['x' => NULL, 'y' => NULL],
-          'iconAnchor' => ['x' => NULL, 'y' => NULL],
-          'shadowAnchor' => ['x' => NULL, 'y' => NULL],
-          'popupAnchor' => ['x' => NULL, 'y' => NULL],
-        ],
-      ] + parent::defaultSettings();
+      'multiple_map' => 0,
+      'leaflet_map' => 'OSM Mapnik',
+      'height' => 400,
+      'zoom' => 10,
+      'minPossibleZoom' => 0,
+      'maxPossibleZoom' => 18,
+      'minZoom' => 0,
+      'maxZoom' => 18,
+      'popup' => FALSE,
+      'icon' => [
+        'iconUrl' => '',
+        'shadowUrl' => '',
+        'iconSize' => ['x' => NULL, 'y' => NULL],
+        'iconAnchor' => ['x' => NULL, 'y' => NULL],
+        'shadowAnchor' => ['x' => NULL, 'y' => NULL],
+        'popupAnchor' => ['x' => NULL, 'y' => NULL],
+      ],
+    ] + parent::defaultSettings();
   }
 
   /**
    * {@inheritdoc}
    */
   public function settingsForm(array $form, FormStateInterface $form_state) {
+
+    // Get the Cardinality set for the Formatter Field.
+    $field_cardinality = $this->fieldDefinition->getFieldStorageDefinition()
+      ->getCardinality();
+
     $elements = parent::settingsForm($form, $form_state);
 
     $leaflet_map_options = [];
     foreach (leaflet_map_get_info() as $key => $map) {
       $leaflet_map_options[$key] = $map['label'];
     }
+
+    if ($field_cardinality !== 1) {
+      $elements['multiple_map'] = [
+        '#type' => 'checkbox',
+        '#title' => $this->t('Multiple Maps'),
+        '#description' => $this->t('Check this option if you want to render a single Map for every single Geo Point.'),
+        '#default_value' => $this->getSetting('multiple_map'),
+        '#return_value' => 1,
+      ];
+    }
+    else {
+      $elements['multiple_map'] = [
+        '#type' => 'hidden',
+        '#value' => 0,
+      ];
+    }
+
     $elements['leaflet_map'] = [
       '#title' => $this->t('Leaflet Map'),
       '#type' => 'select',
@@ -122,7 +148,9 @@ class LeafletDefaultFormatter extends FormatterBase implements ContainerFactoryP
       '#default_value' => $this->getSetting('leaflet_map'),
       '#required' => TRUE,
     ];
+
     $zoom_options = [];
+
     for ($i = $this->getSetting('minPossibleZoom'); $i <= $this->getSetting('maxPossibleZoom'); $i++) {
       $zoom_options[$i] = $i;
     }
@@ -160,97 +188,9 @@ class LeafletDefaultFormatter extends FormatterBase implements ContainerFactoryP
       '#default_value' => $this->getSetting('popup'),
     ];
 
+    // Generate Icon form element.
     $icon = $this->getSetting('icon');
-
-    $elements['icon'] = [
-      '#type' => 'fieldset',
-      '#title' => $this->t('Map Icon'),
-      'description' => [
-        '#markup' => $this->t('For details on the following setup refer to @leaflet_icon_documentation_link', [
-          '@leaflet_icon_documentation_link' => $this->leafletService->leafletIconDocumentationLink(),
-        ]),
-      ],
-    ];
-    $elements['icon']['iconUrl'] = [
-      '#title' => $this->t('Icon URL'),
-      '#description' => $this->t('Can be an absolute or relative URL.'),
-      '#type' => 'textfield',
-      '#maxlength' => 999,
-      '#default_value' => isset($icon['iconUrl']) ? $icon['iconUrl'] : NULL,
-      '#element_validate' => [[$this, 'validateUrl']],
-    ];
-    $elements['icon']['shadowUrl'] = [
-      '#title' => $this->t('Icon Shadow URL'),
-      '#type' => 'textfield',
-      '#maxlength' => 999,
-      '#default_value' => isset($icon['shadowUrl']) ? $icon['shadowUrl'] : NULL,
-      '#element_validate' => [[$this, 'validateUrl']],
-    ];
-
-    $elements['icon']['iconSize'] = [
-      '#title' => $this->t('Icon Size'),
-      '#type' => 'fieldset',
-      '#collapsible' => FALSE,
-      '#description' => $this->t('Size of the icon image in pixels.'),
-    ];
-    $elements['icon']['iconSize']['x'] = [
-      '#title' => $this->t('Width'),
-      '#type' => 'number',
-      '#default_value' => isset($icon['iconSize']) ? $icon['iconSize']['x'] : NULL,
-    ];
-    $elements['icon']['iconSize']['y'] = [
-      '#title' => $this->t('Height'),
-      '#type' => 'number',
-      '#default_value' => isset($icon['iconSize']) ? $icon['iconSize']['y'] : NULL,
-    ];
-    $elements['icon']['iconAnchor'] = [
-      '#title' => $this->t('Icon Anchor'),
-      '#type' => 'fieldset',
-      '#collapsible' => FALSE,
-      '#description' => $this->t('The coordinates of the "tip" of the icon (relative to its top left corner). The icon will be aligned so that this point is at the marker\'s geographical location.'),
-    ];
-    $elements['icon']['iconAnchor']['x'] = [
-      '#title' => $this->t('X'),
-      '#type' => 'number',
-      '#default_value' => isset($icon['iconAnchor']) ? $icon['iconAnchor']['x'] : NULL,
-    ];
-    $elements['icon']['iconAnchor']['y'] = [
-      '#title' => $this->t('Y'),
-      '#type' => 'number',
-      '#default_value' => isset($icon['iconAnchor']) ? $icon['iconAnchor']['y'] : NULL,
-    ];
-    $elements['icon']['shadowAnchor'] = [
-      '#title' => $this->t('Shadow Anchor'),
-      '#type' => 'fieldset',
-      '#collapsible' => FALSE,
-      '#description' => $this->t('The point from which the shadow is shown.'),
-    ];
-    $elements['icon']['shadowAnchor']['x'] = [
-      '#title' => $this->t('X'),
-      '#type' => 'number',
-      '#default_value' => isset($icon['shadowAnchor']) ? $icon['shadowAnchor']['x'] : NULL,
-    ];
-    $elements['icon']['shadowAnchor']['y'] = [
-      '#title' => $this->t('Y'),
-      '#type' => 'number',
-      '#default_value' => isset($icon['shadowAnchor']) ? $icon['shadowAnchor']['y'] : NULL,
-    ];
-    $elements['icon']['popupAnchor'] = [
-      '#title' => $this->t('Popup Anchor'),
-      '#type' => 'fieldset',
-      '#collapsible' => FALSE,
-      '#description' => $this->t('The point from which the marker popup opens, relative to the anchor point.'),
-    ];
-    $elements['icon']['popupAnchor']['x'] = [
-      '#title' => $this->t('X'),
-      '#type' => 'number',
-      '#default_value' => isset($icon['popupAnchor']) ? $icon['popupAnchor']['x'] : NULL,
-    ];
-    $elements['icon']['popupAnchor']['y'] = [
-      '#title' => $this->t('Y'),
-      '#type' => 'number',
-      '#default_value' => isset($icon['popupAnchor']) ? $icon['popupAnchor']['y'] : NULL,
-    ];
+    $elements['icon'] = $this->generateIconFormElement($icon);
 
     return $elements;
   }
@@ -291,23 +231,36 @@ class LeafletDefaultFormatter extends FormatterBase implements ContainerFactoryP
     // Performs some preprocess on the leaflet map settings.
     $this->leafletService->preProcessMapSettings($settings);
 
-    $elements = [];
+    $features = [];
     foreach ($items as $delta => $item) {
 
-      $features = $this->leafletService->leafletProcessGeofield($item->value);
+      $points = $this->leafletService->leafletProcessGeofield($item->value);
+      $feature = $points[0];
 
-      // If only a single feature, set the popup content to the entity title.
-      if ($settings['popup'] && count($items) == 1) {
-        $features[0]['popup'] = $entity->label();
+      // Eventually set the popup content to the entity title.
+      if ($settings['popup']) {
+        $feature['popup'] = $entity->label();
       }
+
+      // Eventually set the custom icon.
       if (!empty($icon_url)) {
-        foreach ($features as $key => $feature) {
-          $features[$key]['icon'] = $settings['icon'];
-        }
+        $feature['icon'] = $settings['icon'];
       }
-      $elements[$delta] = $this->leafletService->leafletRenderMap($map, $features, $settings['height'] . 'px');
+
+      $features[] = $feature;
     }
-    return $elements;
+
+    $results = [];
+    if (!empty($settings['multiple_map'])) {
+      foreach ($features as $feature) {
+        $results[] = $this->leafletService->leafletRenderMap($map, [$feature], $settings['height'] . 'px');
+      }
+    }
+    else {
+      $results[] = $this->leafletService->leafletRenderMap($map, $features, $settings['height'] . 'px');
+    }
+
+    return $results;
   }
 
   /**
