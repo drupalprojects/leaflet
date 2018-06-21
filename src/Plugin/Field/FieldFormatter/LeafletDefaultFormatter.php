@@ -5,7 +5,6 @@ namespace Drupal\leaflet\Plugin\Field\FieldFormatter;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\Core\Field\FieldDefinitionInterface;
-use Drupal\Component\Utility\UrlHelper;
 use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\Core\Field\FormatterBase;
 use Drupal\Core\Form\FormStateInterface;
@@ -92,12 +91,17 @@ class LeafletDefaultFormatter extends FormatterBase implements ContainerFactoryP
       'multiple_map' => 0,
       'leaflet_map' => 'OSM Mapnik',
       'height' => 400,
-      'zoom' => 10,
-      'minPossibleZoom' => 0,
-      'maxPossibleZoom' => 18,
-      'minZoom' => 0,
-      'maxZoom' => 18,
       'popup' => FALSE,
+      'map_position' => [
+        'force' => 0,
+        'center' => [
+          'lat' => 0,
+          'lon' => 0,
+        ],
+        'zoom' => 12,
+        'minZoom' => 1,
+        'maxZoom' => 18,
+      ],
       'icon' => [
         'iconUrl' => '',
         'shadowUrl' => '',
@@ -149,44 +153,23 @@ class LeafletDefaultFormatter extends FormatterBase implements ContainerFactoryP
       '#required' => TRUE,
     ];
 
-    $zoom_options = [];
-
-    for ($i = $this->getSetting('minPossibleZoom'); $i <= $this->getSetting('maxPossibleZoom'); $i++) {
-      $zoom_options[$i] = $i;
-    }
-    $elements['zoom'] = [
-      '#title' => $this->t('Zoom'),
-      '#type' => 'select',
-      '#options' => $zoom_options,
-      '#default_value' => $this->getSetting('zoom'),
-      '#required' => TRUE,
-    ];
-    $elements['minZoom'] = [
-      '#title' => $this->t('Min. Zoom'),
-      '#type' => 'select',
-      '#options' => $zoom_options,
-      '#default_value' => $this->getSetting('minZoom'),
-      '#required' => TRUE,
-    ];
-    $elements['maxZoom'] = [
-      '#title' => $this->t('Max. Zoom'),
-      '#type' => 'select',
-      '#options' => $zoom_options,
-      '#default_value' => $this->getSetting('maxZoom'),
-      '#required' => TRUE,
-    ];
     $elements['height'] = [
       '#title' => $this->t('Map Height'),
       '#type' => 'number',
       '#default_value' => $this->getSetting('height'),
       '#field_suffix' => $this->t('px'),
     ];
+
     $elements['popup'] = [
       '#title' => $this->t('Popup'),
-      '#description' => $this->t('Show a popup for single location fields.'),
+      '#description' => $this->t('Show a popup infowindow of the content Title.'),
       '#type' => 'checkbox',
       '#default_value' => $this->getSetting('popup'),
     ];
+
+    // Generate the Leaflet Map Position Form Element.
+    $map_position_options = $this->getSetting('map_position');
+    $elements['map_position'] = $this->generateMapPositionElement($map_position_options);
 
     // Generate Icon form element.
     $icon = $this->getSetting('icon');
@@ -220,15 +203,18 @@ class LeafletDefaultFormatter extends FormatterBase implements ContainerFactoryP
       $entity = $entity->getTranslation($langcode);
     }
 
+    // Sets/consider possibly existing previous Zoom settings.
+    $this->setExistingZoomSettings();
     $settings = $this->getSettings();
-
-    $map = leaflet_map_get_info($settings['leaflet_map']);
-    $map['settings']['zoom'] = isset($settings['zoom']) ? $settings['zoom'] : NULL;
-    $map['settings']['minZoom'] = isset($settings['minZoom']) ? $settings['minZoom'] : NULL;
-    $map['settings']['maxZoom'] = isset($settings['zoom']) ? $settings['maxZoom'] : NULL;
 
     // Performs some preprocess on the leaflet map settings.
     $this->leafletService->preProcessMapSettings($settings);
+
+    // Always render the map, even if we do not have any data.
+    $map = leaflet_map_get_info($settings['leaflet_map']);
+
+    // Set Map additional map Settings.
+    $this->setAdditionalMapOptions($map, $settings);
 
     $features = [];
     foreach ($items as $delta => $item) {
@@ -263,16 +249,15 @@ class LeafletDefaultFormatter extends FormatterBase implements ContainerFactoryP
   }
 
   /**
-   * Validate Url method.
-   *
-   * @param array $element
-   *   The element to validate.
-   * @param \Drupal\Core\Form\FormStateInterface $form_state
-   *   The state of the form.
+   * Sets possibly existing previous settings for the Zoom Form Element.
    */
-  public function validateUrl(array $element, FormStateInterface $form_state) {
-    if (!empty($element['#value']) && !UrlHelper::isValid($element['#value'])) {
-      $form_state->setError($element, $this->t("Icon Url is not valid."));
+  private function setExistingZoomSettings() {
+    $settings = $this->getSettings();
+    if (isset($settings['zoom'])) {
+      $settings['map_position']['zoom'] = (int) $settings['zoom'];
+      $settings['map_position']['minZoom'] = (int) $settings['minZoom'];
+      $settings['map_position']['maxZoom'] = (int) $settings['maxZoom'];
+      $this->setSettings($settings);
     }
   }
 

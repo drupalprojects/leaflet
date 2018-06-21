@@ -8,9 +8,14 @@
           var $container = $(this);
 
           // If the attached context contains any leaflet maps, make sure we have a Drupal.leaflet_widget object.
-          if ($container.data('leaflet') == undefined) {
+          if ($container.data('leaflet') === undefined) {
             $container.data('leaflet', new Drupal.Leaflet(L.DomUtil.get(data.mapId), data.mapId, data.map));
-            $container.data('leaflet').add_features(data.features, true);
+            if (data.features.length > 0) {
+              $container.data('leaflet').add_features(data.features, true);
+            }
+
+            // Set map position features.
+            $container.data('leaflet').setMapPosition(data.features);
 
             // Add the leaflet map to our settings object to make it accessible
             data.lMap = $container.data('leaflet').lMap;
@@ -18,7 +23,7 @@
           else {
             // If we already had a map instance, add new features.
             // @todo Does this work? Needs testing.
-            if (data.features != undefined) {
+            if (data.features !== undefined) {
               $container.data('leaflet').add_features(data.features);
             }
           }
@@ -151,9 +156,6 @@
       // Allow others to do something with the feature that was just added to the map
       $(document).trigger('leaflet.feature', [lFeature, feature, this]);
     }
-
-    // Fit bounds after adding features.
-    this.fitbounds();
 
     // Allow plugins to do things after features have been added.
     $(document).trigger('leaflet.features', [initial || false, this])
@@ -330,19 +332,22 @@
       if (feature.properties.popup) {
         layer.bindPopup(feature.properties.popup);
       }
-    }
+    };
 
     lJSON.addData(json);
     return lJSON;
   };
 
-  Drupal.Leaflet.prototype.fitbounds = function () {
-    if (this.bounds.length > 0) {
+  Drupal.Leaflet.prototype.setMapPosition = function (features) {
+    // Fit Bounds if both them and features exist, and the Map Position in not forced.
+    if (features.length > 0 && !this.settings.map_position_force && this.bounds.length > 0) {
       this.lMap.fitBounds(new L.LatLngBounds(this.bounds));
-    }
-    // If we have provided a zoom level, then use it after fitting bounds.
-    if (this.settings.zoom) {
-      this.lMap.setZoom(this.settings.zoom);
+
+      // In case of single result use the custom Map Zoom set.
+      if (features.length === 1 && this.settings.zoom) {
+        this.lMap.setZoom(this.settings.zoom);
+      }
+
     }
   };
 
