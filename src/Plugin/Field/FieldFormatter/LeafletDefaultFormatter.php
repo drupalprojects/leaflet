@@ -221,7 +221,6 @@ class LeafletDefaultFormatter extends FormatterBase implements ContainerFactoryP
     }
 
     $settings = $this->getSettings();
-    $icon_url = $settings['icon']['iconUrl'];
 
     $map = leaflet_map_get_info($settings['leaflet_map']);
     $map['settings']['zoom'] = isset($settings['zoom']) ? $settings['zoom'] : NULL;
@@ -243,7 +242,7 @@ class LeafletDefaultFormatter extends FormatterBase implements ContainerFactoryP
       }
 
       // Eventually set the custom icon.
-      if (!empty($icon_url)) {
+      if (!empty($settings['icon']['iconUrl'])) {
         $feature['icon'] = $settings['icon'];
       }
 
