@@ -390,16 +390,16 @@ class LeafletMap extends StylePluginBase implements ContainerFactoryPluginInterf
             }
           }
 
+          foreach ($points as &$point) {
+            // Allow modules to adjust the marker.
+            \Drupal::moduleHandler()
+              ->alter('leaflet_views_feature', $point, $result, $this->view->rowPlugin);
+          }
+
           // Add new points to the whole basket.
           $data = array_merge($data, $points);
 
         }
-      }
-
-      // Allow modules to adjust the marker.
-      foreach ($data as &$feature) {
-        \Drupal::moduleHandler()
-          ->alter('leaflet_views_feature', $feature, $result, $this->view->rowPlugin);
       }
 
     }
