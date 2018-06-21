@@ -157,7 +157,7 @@ class LeafletMarker extends RowPluginBase implements ContainerFactoryPluginInter
   public function init(ViewExecutable $view, DisplayPluginBase $display, array &$options = NULL) {
     parent::init($view, $display, $options);
     // First base table should correspond to main entity type.
-    $this->entityTypeId = $view->getBaseEntityType();
+    $this->entityTypeId = $view->getBaseEntityType()->id();
   }
 
   /**
