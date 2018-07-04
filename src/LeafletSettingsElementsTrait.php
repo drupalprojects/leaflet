@@ -49,6 +49,53 @@ trait LeafletSettingsElementsTrait {
    */
 
   /**
+   * Generate the Leaflet Map General Settings.
+   *
+   * @param array $elements
+   *   The form elements.
+   * @param array $settings
+   *   The settings.
+   */
+  protected function generateMapGeneralSettings(array &$elements, array $settings) {
+
+    $leaflet_map_options = [];
+    foreach (leaflet_map_get_info() as $key => $map) {
+      $leaflet_map_options[$key] = $map['label'];
+    }
+
+    $leaflet_map = isset($settings['leaflet_map']) ? $settings['leaflet_map'] : $settings['map'];
+
+    $elements['leaflet_map'] = [
+      '#title' => $this->t('Leaflet Map'),
+      '#type' => 'select',
+      '#options' => $leaflet_map_options,
+      '#default_value' => $leaflet_map,
+      '#required' => TRUE,
+    ];
+
+    $elements['height'] = [
+      '#title' => $this->t('Map Height'),
+      '#type' => 'number',
+      '#default_value' => $settings['height'],
+      '#field_suffix' => $this->t('px'),
+    ];
+
+    $elements['hide_empty_map'] = [
+      '#type' => 'checkbox',
+      '#title' => $this->t('Hide Map if empty'),
+      '#description' => $this->t('Check this option not to render the Map at all, if empty (no output results).'),
+      '#default_value' => $settings['hide_empty_map'],
+      '#return_value' => 1,
+      '#states' => [
+        'invisible' => [
+          ':input[name="fields[field_geofield][settings_edit_form][settings][multiple_map]"]' => ['checked' => TRUE],
+        ],
+      ],
+    ];
+
+  }
+
+  /**
    * Generate the Leaflet Map Position Form Element.
    *
    * @param array $map_position_options

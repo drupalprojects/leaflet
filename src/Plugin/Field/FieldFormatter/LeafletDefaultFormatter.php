@@ -91,6 +91,7 @@ class LeafletDefaultFormatter extends FormatterBase implements ContainerFactoryP
       'multiple_map' => 0,
       'leaflet_map' => 'OSM Mapnik',
       'height' => 400,
+      'hide_empty_map' => 0,
       'popup' => FALSE,
       'map_position' => [
         'force' => 0,
@@ -124,11 +125,6 @@ class LeafletDefaultFormatter extends FormatterBase implements ContainerFactoryP
 
     $elements = parent::settingsForm($form, $form_state);
 
-    $leaflet_map_options = [];
-    foreach (leaflet_map_get_info() as $key => $map) {
-      $leaflet_map_options[$key] = $map['label'];
-    }
-
     if ($field_cardinality !== 1) {
       $elements['multiple_map'] = [
         '#type' => 'checkbox',
@@ -145,27 +141,8 @@ class LeafletDefaultFormatter extends FormatterBase implements ContainerFactoryP
       ];
     }
 
-    $elements['leaflet_map'] = [
-      '#title' => $this->t('Leaflet Map'),
-      '#type' => 'select',
-      '#options' => $leaflet_map_options,
-      '#default_value' => $this->getSetting('leaflet_map'),
-      '#required' => TRUE,
-    ];
-
-    $elements['height'] = [
-      '#title' => $this->t('Map Height'),
-      '#type' => 'number',
-      '#default_value' => $this->getSetting('height'),
-      '#field_suffix' => $this->t('px'),
-    ];
-
-    $elements['popup'] = [
-      '#title' => $this->t('Popup'),
-      '#description' => $this->t('Show a popup infowindow of the content Title.'),
-      '#type' => 'checkbox',
-      '#default_value' => $this->getSetting('popup'),
-    ];
+    // Generate the Leaflet Map General Settings.
+    $this->generateMapGeneralSettings($elements, $this->getSettings());
 
     // Generate the Leaflet Map Position Form Element.
     $map_position_options = $this->getSetting('map_position');
@@ -241,7 +218,8 @@ class LeafletDefaultFormatter extends FormatterBase implements ContainerFactoryP
         $results[] = $this->leafletService->leafletRenderMap($map, [$feature], $settings['height'] . 'px');
       }
     }
-    else {
+    // Render the map, if we do have data or the hide option is unchecked.
+    elseif (!empty($features) || empty($settings['hide_empty_map'])) {
       $results[] = $this->leafletService->leafletRenderMap($map, $features, $settings['height'] . 'px');
     }
 

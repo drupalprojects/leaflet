@@ -281,29 +281,8 @@ class LeafletMap extends StylePluginBase implements ContainerFactoryPluginInterf
       ];
     }
 
-    // Choose a map preset.
-    $map_options = [];
-
-    foreach (leaflet_map_get_info() as $key => $map) {
-      $map_options[$key] = $map['label'];
-    }
-
-    $form['map'] = [
-      '#title' => $this->t('Map'),
-      '#type' => 'select',
-      '#options' => $map_options,
-      '#default_value' => $this->options['map'] ?: '',
-      '#required' => TRUE,
-    ];
-
-    $form['height'] = [
-      '#title' => $this->t('Map height'),
-      '#type' => 'textfield',
-      '#field_suffix' => $this->t('px'),
-      '#size' => 4,
-      '#default_value' => $this->options['height'],
-      '#required' => TRUE,
-    ];
+    // Generate the Leaflet Map General Settings.
+    $this->generateMapGeneralSettings($form, $this->options);
 
     // Generate the Leaflet Map Position Form Element.
     $map_position_options = $this->options['map_position'];
@@ -410,11 +389,18 @@ class LeafletMap extends StylePluginBase implements ContainerFactoryPluginInterf
 
     }
 
-    // Always render the map, even if we do not have any data.
+    // Don't render the map, if we do not have any data
+    // and the hide option is set.
+    if (empty($data) && !empty($this->options['hide_empty_map'])) {
+      return [];
+    }
+
+    // Always render the map, otherwise ...
     $map = leaflet_map_get_info($this->options['map']);
 
     // Set Map additional map Settings.
     $this->setAdditionalMapOptions($map, $this->options);
+
     return $this->leafletService->leafletRenderMap($map, $data, $this->options['height'] . 'px');
   }
 
@@ -429,6 +415,7 @@ class LeafletMap extends StylePluginBase implements ContainerFactoryPluginInterf
     $options['view_mode'] = ['default' => 'full'];
     $options['map'] = ['default' => ''];
     $options['height'] = ['default' => '400'];
+    $options['hide_empty_map'] = ['default' => 0];
     $options['map_position'] = [
       'default' => [
         'force' => 0,
