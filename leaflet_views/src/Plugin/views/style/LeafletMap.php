@@ -396,7 +396,7 @@ class LeafletMap extends StylePluginBase implements ContainerFactoryPluginInterf
     }
 
     // Always render the map, otherwise ...
-    $map = leaflet_map_get_info($this->options['map']);
+    $map = leaflet_map_get_info($this->options['leaflet_map']);
 
     // Set Map additional map Settings.
     $this->setAdditionalMapOptions($map, $this->options);
