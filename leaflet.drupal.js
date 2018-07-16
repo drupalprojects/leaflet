@@ -15,7 +15,7 @@
             }
 
             // Set map position features.
-            $container.data('leaflet').setMapPosition(data.features);
+            $container.data('leaflet').fitbounds();
 
             // Add the leaflet map to our settings object to make it accessible
             data.lMap = $container.data('leaflet').lMap;
@@ -338,13 +338,15 @@
     return lJSON;
   };
 
-  Drupal.Leaflet.prototype.setMapPosition = function (features) {
+  // Set Map position, fitting Bounds in case of more than one feature
+  // @NOTE: This method used by Leaflet Markecluster module (don't remove/rename)
+  Drupal.Leaflet.prototype.fitbounds = function () {
     // Fit Bounds if both them and features exist, and the Map Position in not forced.
-    if (features.length > 0 && !this.settings.map_position_force && this.bounds.length > 0) {
+    if (!this.settings.map_position_force && this.bounds.length > 0) {
       this.lMap.fitBounds(new L.LatLngBounds(this.bounds));
 
       // In case of single result use the custom Map Zoom set.
-      if (features.length === 1 && this.settings.zoom) {
+      if (this.bounds.length === 1 && this.settings.zoom) {
         this.lMap.setZoom(this.settings.zoom);
       }
 
