@@ -190,18 +190,32 @@ class LeafletService {
           break;
 
         case 'multipolygon':
+          $components = [];
+          $tmp = $geom->getComponents();
+          foreach ($tmp as $delta => $polygon) {
+            $polygon_component = $polygon->getComponents();
+            foreach ($polygon_component as $delta => $linestring) {
+              $components[] = $linestring;
+            }
+          }
+          foreach ($components as $key => $component) {
+            $subcomponents = $component->getComponents();
+            foreach ($subcomponents as $subcomponent) {
+              $datum['component'][$key]['points'][] = array(
+                'lat' => $subcomponent->getY(),
+                'lon' => $subcomponent->getX(),
+              );
+            }
+          }
+
+          $data[] = $datum;
+          break;
         case 'multipolyline':
         case 'multilinestring':
           if ($datum['type'] == 'multilinestring') {
             $datum['type'] = 'multipolyline';
           }
-          if ($datum['type'] == 'multipolygon') {
-            $tmp = $geom->getComponents();
-            $components = $tmp[0]->getComponents();
-          }
-          else {
-            $components = $geom->getComponents();
-          }
+          $components = $geom->getComponents();
           foreach ($components as $key => $component) {
             /* @var \GeometryCollection $component */
             $subcomponents = $component->getComponents();
@@ -212,7 +226,6 @@ class LeafletService {
                 'lon' => $subcomponent->getX(),
               ];
             }
-            unset($subcomponent);
           }
           break;
       }
