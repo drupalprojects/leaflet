@@ -141,6 +141,13 @@ class LeafletDefaultFormatter extends FormatterBase implements ContainerFactoryP
       ];
     }
 
+    $elements['popup'] = [
+      '#title' => $this->t('Popup Infowindow'),
+      '#description' => $this->t('Show a popup infowindow with the content Title.'),
+      '#type' => 'checkbox',
+      '#default_value' => $this->getSetting('popup'),
+    ];
+
     // Generate the Leaflet Map General Settings.
     $this->generateMapGeneralSettings($elements, $this->getSettings());
 
